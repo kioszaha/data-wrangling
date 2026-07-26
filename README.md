@@ -30,6 +30,14 @@
 3. **Let the group know of any new pull requests or merges.** If your change is small and a code review is likely not necessary (e.g, a fix, refactor, or chore), send a message to the group chat letting the group know you merged onto main, what you changed, and why.
 4. **Make sure to delete merged branches!**
 
+### 🪶 Checking others' pull requests
+
+1. You can view pull requests at https://github.com/kioszaha/data-wrangling/pulls.
+2. Once on a pull request, switch to the `Files changed` tab to inspect all added or modified code.
+3. Click the `+` icon next to ask questions, suggest improvements, or point out bugs.
+4. Click `Review changes` and choose `Approve` or `Request changes`, then post your overall summary comment.
+5. Message the chat to let the group know you provided feedback.
+
 ## 📦Packages
 
 Use `uv` to manage packages
