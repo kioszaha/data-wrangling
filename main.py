@@ -1,4 +1,8 @@
+import dotenv
+
 from utils.sync_data import sync_data
+
+dotenv.load_dotenv()
 
 
 def main():
