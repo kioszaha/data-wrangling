@@ -2,14 +2,27 @@
 Check if there is any data that is not replicated locally, and replicate it.
 """
 
+import hashlib
 from pathlib import Path
 
 import requests
+from rich.console import Console
 from rich.live import Live
 
 from config import DATA_DIR
 
 DATA_URL = "https://data-wrangling-cdn.oskar.nz"
+
+console = Console()
+
+
+def calculate_md5(file_path: Path) -> str:
+    """Calculate the hex MD5 hash of a local file in 64KB chunks."""
+    md5 = hashlib.md5()
+    with open(file_path, "rb") as f:
+        for chunk in iter(lambda: f.read(65536), b""):
+            md5.update(chunk)
+    return md5.hexdigest()
 
 
 def sync_data() -> None:
@@ -17,7 +30,7 @@ def sync_data() -> None:
     Check if there is any data that is not replicated locally, and replicate it.
     """
 
-    with Live() as live:
+    with Live(console=console) as live:
         live.update("[bold blue]⌛ Checking remote files...[/bold blue]")
 
         # Request a list of files from the server
@@ -38,15 +51,27 @@ def sync_data() -> None:
             return
 
         # Loop through each file returned, and check if it's there.
+        # If it's there, make sure its the same as on the server.
         missing_files = []
-        files = files["files"]
-        for file in files:
-            file_path: Path = DATA_DIR / file["key"]
+
+        live.update("[bold blue]⌛ Checking remote files...[/bold blue]")
+        for file in files.get("files", []):
+            key = file["key"]
+            remote_etag = file["etag"].strip('"')
+            file_path = DATA_DIR / key
+
             if not file_path.exists():
-                file["path"] = file_path
-                file["status"] = "pending"
-                file["downloaded"] = 0
-                missing_files.append(file)
+                console.print(f"[bold red]{key} is missing[/bold red]")
+            elif calculate_md5(file_path) != remote_etag:
+                console.print(f"[bold red]{key} was modified[/bold red]")
+                file_path.unlink()
+            else:
+                continue
+
+            file["path"] = file_path
+            file["status"] = "pending"
+            file["downloaded"] = 0
+            missing_files.append(file)
 
         # Check if we have files to download
         if len(missing_files) == 0:
