@@ -1,5 +1,12 @@
+import dotenv
+
+from utils.sync_data import sync_data
+
+dotenv.load_dotenv()
+
+
 def main():
-    print("Hello from data-wrangling!")
+    sync_data()
 
 
 if __name__ == "__main__":
