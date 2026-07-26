@@ -1,5 +1,8 @@
+from utils.sync_data import sync_data
+
+
 def main():
-    print("Hello from data-wrangling!")
+    sync_data()
 
 
 if __name__ == "__main__":
