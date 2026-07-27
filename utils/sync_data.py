@@ -1,5 +1,7 @@
 """
 Check if there is any data that is not replicated locally, and replicate it.
+
+Author: Oskar Greig
 """
 
 import hashlib
