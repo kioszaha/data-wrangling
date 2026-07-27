@@ -20,7 +20,7 @@ console = Console()
 
 
 def calculate_md5(file_path: Path) -> str:
-    """Calculate the hex MD5 hash of a local file in 64KB chunks."""
+    """Calculate the hex MD5 hash of a file"""
     md5 = hashlib.md5()
     with open(file_path, "rb") as f:
         for chunk in iter(lambda: f.read(65536), b""):
@@ -29,7 +29,7 @@ def calculate_md5(file_path: Path) -> str:
 
 
 def is_safe_path(base_dir: Path, target_path: Path) -> bool:
-    """Ensure target path remains inside base_dir to prevent path traversal."""
+    """Ensure target path remains inside base_dir"""
     try:
         return target_path.resolve().is_relative_to(base_dir.resolve())
     except (ValueError, RuntimeError):
@@ -79,7 +79,7 @@ def build_status_table(missing_files: list[dict]) -> Table:
 
 
 def sync_data() -> None:
-    """Check missing remote files and safely replicate them locally."""
+    """Check missing remote files and safely replicate them locally"""
     api_url = urljoin(DATA_URL, "/api/files")
 
     try:

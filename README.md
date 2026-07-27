@@ -1,6 +1,6 @@
 # Team KIOSZAHA : Data Wrangling
 
-## 🥸 Team members:
+## 🛞 Team members:
 
 - 🙀 Oskar Greig
 
