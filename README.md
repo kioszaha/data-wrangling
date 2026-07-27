@@ -57,25 +57,27 @@ Command cheat sheet:
 
 > \*Alternatively, you can activate the virtual environment (e.g, with `.venv/Scripts/activate`) and then run files like normal (e.g, `py [file-name].py`).
 
-## 🛖 AirBNB Dataset
+## 🛖 Airbnb Dataset
 
-| Column                         | Description |
-| ------------------------------ | ----------- |
-| id                             |             |
-| name                           |             |
-| host_id                        |             |
-| host_name                      |             |
-| neighbourhood_group            |             |
-| neighbourhood                  |             |
-| latitude                       |             |
-| longitude                      |             |
-| room_type                      |             |
-| price                          |             |
-| minimum_nights                 |             |
-| number_of_reviews              |             |
-| last_review                    |             |
-| reviews_per_month              |             |
-| calculated_host_listings_count |             |
-| availability_365               |             |
-| number_of_reviews_ltm          |             |
-| license                        |             |
+Source - [Inside Airbnb](https://insideairbnb.com/new-zealand/)
+
+| Column                         | Description                                    |
+| ------------------------------ | ---------------------------------------------- |
+| id                             | Unique identifier for each document            |
+| name                           | Listing name as per Airbnb listing             |
+| host_id                        | Unique identifier of the host's Airbnb account |
+| host_name                      | Name of the host as per Airbnb profile         |
+| neighbourhood_group            |                                                |
+| neighbourhood                  |                                                |
+| latitude                       | Latitude coordinate of the Airbnb property     |
+| longitude                      | Longitude coordinate of the Airbnb property    |
+| room_type                      |                                                |
+| price                          |                                                |
+| minimum_nights                 |                                                |
+| number_of_reviews              |                                                |
+| last_review                    |                                                |
+| reviews_per_month              |                                                |
+| calculated_host_listings_count |                                                |
+| availability_365               |                                                |
+| number_of_reviews_ltm          |                                                |
+| license                        |                                                |
