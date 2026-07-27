@@ -60,6 +60,7 @@ Command cheat sheet:
 ## 🛖 Airbnb Dataset
 
 Source - [Inside Airbnb](https://insideairbnb.com/new-zealand/)
+Column data obtained from [Inside Airbnb Data Dictionary](https://docs.google.com/spreadsheets/d/1iWCNJcSutYqpULSQHlNyGInUvHg2BoUGoNRIGa6Szc4)
 
 | Column                         | Description                                                                                                                                                                             |
 | ------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
