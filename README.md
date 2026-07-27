@@ -6,7 +6,7 @@
 
 - 🥸 Zaeim Imran Bin Mohd Nazri
 
-- 🔥 Oliver Howorth
+- 😎 Oliver Howorth
 
 - � ~~Hattie Zhong~~
 
