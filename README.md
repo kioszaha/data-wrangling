@@ -56,3 +56,26 @@ Command cheat sheet:
 | uv run [file-name].py| Run a file\*|
 
 > \*Alternatively, you can activate the virtual environment (e.g, with `.venv/Scripts/activate`) and then run files like normal (e.g, `py [file-name].py`).
+
+## 🛖 AirBNB Dataset
+
+| Column                         | Description |
+| ------------------------------ | ----------- |
+| id                             |             |
+| name                           |             |
+| host_id                        |             |
+| host_name                      |             |
+| neighbourhood_group            |             |
+| neighbourhood                  |             |
+| latitude                       |             |
+| longitude                      |             |
+| room_type                      |             |
+| price                          |             |
+| minimum_nights                 |             |
+| number_of_reviews              |             |
+| last_review                    |             |
+| reviews_per_month              |             |
+| calculated_host_listings_count |             |
+| availability_365               |             |
+| number_of_reviews_ltm          |             |
+| license                        |             |
