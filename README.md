@@ -8,6 +8,8 @@
 
 - 😎 Oliver Howorth
 
+-  Suganya Karthic Kumar
+
 - � ~~Hattie Zhong~~
 
 - � ~~Kiran Rajesh Rajesh Lidiya~~
