@@ -32,7 +32,7 @@ class AirbnbListing:
             pd.DataFrame: A loaded Pandas Dataframe of the original. csv file
         """
         if self.dataframe is None or force:
-            self.dataframe = pd.read_csv(self.path)
+            self.dataframe = pd.read_csv(self.path, parse_dates=["last_review"])
         return self.dataframe
 
     def filter_christchurch(self) -> None:
@@ -47,8 +47,8 @@ class AirbnbListing:
         """Loads the dataframe if necessary, then mutates the DataFrame
         in place to add month and year columns based on the publish date of the dataset"""
         self.load()
-        self.dataframe["month"] = self.date.month
-        self.dataframe["year"] = self.date.year
+        self.dataframe["published_month"] = self.date.month
+        self.dataframe["published_ year"] = self.date.year
 
 
 class AirbnbListings:
