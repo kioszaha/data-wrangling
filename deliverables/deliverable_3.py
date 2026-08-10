@@ -1,8 +1,9 @@
 import pandas as pd
+from rich import print
 
+from config import OUTPUT_DIR
 from utils.file_explorer import AirbnbListings, file_explorer
 
-from config import DATA_DIR
 
 def combine_datasets(airbnb_listings: AirbnbListings) -> pd.DataFrame:
     """Returns a concated dataframe consisting of all the listings
@@ -15,10 +16,12 @@ def combine_datasets(airbnb_listings: AirbnbListings) -> pd.DataFrame:
     """
 
     return pd.concat(
-        [airbnb_listing.dataframe for airbnb_listing in airbnb_listings.listings]
+        [airbnb_listing.dataframe for airbnb_listing in airbnb_listings.listings],
+        ignore_index=True,
     )
 
-def summarize_column(series: pd.Series) -> dict:
+
+def summarise_column(series: pd.Series) -> dict:
     """Produce summary statistics for a single column.
 
     Numeric columns report min, max, mean, and standard deviation. Non-numeric
@@ -26,38 +29,60 @@ def summarize_column(series: pd.Series) -> dict:
     number of missing values.
 
     Args:
-        series (pd.Series): The column to summarize
+        series (pd.Series): The column to summarise
 
     Returns:
         dict: The column's summary statistics
     """
     summary = {"missing": series.isna().sum()}
 
-    if pd.api.types.is_numeric_dtype(series):
+    if pd.api.types.is_datetime64_any_dtype(series):
         summary.update(
             {
                 "min": series.min(),
                 "max": series.max(),
                 "mean": series.mean(),
-                "std": series.std(),
+            }
+        )
+    elif pd.api.types.is_numeric_dtype(series) and not pd.api.types.is_bool_dtype(
+        series
+    ):
+        summary.update(
+            {
+                "min": round(series.min(), 2),
+                "max": round(series.max(), 2),
+                "mean": round(series.mean(), 2),
+                "std": round(series.std(), 2),
             }
         )
     else:
-        summary["categories"] = series.value_counts()
-
+        val_counts = series.value_counts()
+        summary["unique_categories"] = len(val_counts)
+        top_cats = ", ".join([f"{k} ({v})" for k, v in val_counts.head(3).items()])
+        summary["top_categories"] = top_cats or "None"
     return summary
 
 
-def summarize_dataset(df: pd.DataFrame) -> dict[str, dict]:
+def summarise_dataset(df: pd.DataFrame, exclude: list) -> pd.DataFrame:
     """Produce summary statistics for every column in a dataframe
 
     Args:
-        df (pd.DataFrame): The dataframe to summarize
+        df (pd.DataFrame): The dataframe to summarise
 
     Returns:
-        dict[str, dict]: A mapping of column name to its summary statistics
+        pd.DataFrame: A dataframe of summary statistics
     """
-    return {column: summarize_column(df[column]) for column in df.columns}
+    if not exclude:
+        exclude = []
+
+    summaries = {
+        col: summarise_column(df[col]) for col in df.columns if col not in exclude
+    }
+
+    summary_df = pd.DataFrame(summaries).T
+
+    return summary_df
+
 
 def main():
     # Obtain the AirbnbListings object
@@ -78,13 +103,25 @@ def main():
     combined_dataset = combine_datasets(airbnb_listings)
 
     # Task 6: Summary statistics + missing values per column
-    summary = summarize_dataset(combined_dataset)
-    for column, stats in summary.items():
-        print(f"\n=== {column} ===")
-        for stat_name, value in stats.items():
-            print(f"{stat_name}: {value}")
+    summary_df = summarise_dataset(
+        combined_dataset,
+        exclude=[
+            "id",
+            "host_id",
+            "license",
+            "published_month",
+            "published_year",
+            "longitude",
+            "latitude",
+        ],
+    )
+    summary_output_path = OUTPUT_DIR / "summary.md"
+    summary_df.to_markdown(summary_output_path)
+    print(f"➡️ [blue] Saved summary to [bold]{summary_output_path}[/bold][/blue]")
 
     # Task 7: Store the concatenated dataset in a new file
-    output_path = DATA_DIR / "combined_listings.csv"
-    combined_dataset.to_csv(output_path, index=False)
-    print(f"\nSaved combined dataset to {output_path}")
+    combined_dataset_output_path = OUTPUT_DIR / "combined_listings.csv"
+    combined_dataset.to_csv(combined_dataset_output_path, index=False)
+    print(
+        f"➡️ [blue] Saved combined dataset to [bold]{combined_dataset_output_path}[/bold][/blue]"
+    )

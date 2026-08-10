@@ -9,4 +9,5 @@ dependencies = [
     "pandas>=3.0.5",
     "requests>=2.34.2",
     "rich>=15.0.0",
+    "tabulate>=0.10.0",
 ]

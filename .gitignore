@@ -1,5 +1,6 @@
 # Locally cloned data that we don't want clogging up GitHub
 .data
+.output
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
