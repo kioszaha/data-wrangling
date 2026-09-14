@@ -7,12 +7,12 @@ Using the combined_listening.csv file from Deliverable 3
 
 import pandas as pd
 
-from config import OUTPUT_DIR
+from config import DATA_DIR, OUTPUT_DIR
 
 OUTPUT_PATH = OUTPUT_DIR / "cleaned_listings.csv"
 
 
-def clean_data():
+def clean_airbnb_data():
     INPUT_FILE = OUTPUT_DIR / "combined_listings.csv"
     if not INPUT_FILE.exists():
         raise FileNotFoundError(
@@ -32,5 +32,17 @@ def clean_data():
     return df
 
 
+def clean_bonds_data():
+    BONDS_DATA = DATA_DIR / "Detailed-Quarterly-Tenancy-Q1-2020-Q3-2026.csv"
+    if not BONDS_DATA.exists():
+        raise FileNotFoundError(
+            f"{BONDS_DATA} does not exist. Did you run sync_data()?"
+        )
+
+    bonds_df = pd.read_csv(BONDS_DATA)
+
+    pass
+
+
 def main():
-    clean_data()
+    clean_airbnb_data()
