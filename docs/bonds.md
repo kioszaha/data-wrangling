@@ -6,24 +6,27 @@ Used under Creative Commons Attribution 3.0 New Zealand License
 
 ## 📜 Documentation
 
-Documentation for this dataset was compiled using the following web page: [https://www.tenancy.govt.nz/rent-bond-and-bills/market-rent/market-rent-explained/](https://www.tenancy.govt.nz/rent-bond-and-bills/market-rent/market-rent-explained/)
+Documentation for this dataset was compiled using the following web pages:
 
-| Column                  | Description                                                                                                                                    |
-| ----------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------- |
-| TimeFrame               | The quarter this row covers, shown as the quarter's start date (e.g. 2026-04-01 = Q2 2026, Apr–Jun)                                            |
-| Location Id             | SA2-2019 area code (Statistics NZ statistical area). `-99` = New Zealand-wide total                                                            |
-| Dwelling Type           | Property type: House/Townhouse, Apartment, Flat, Room, Boarding House, or `ALL` (all types combined)                                           |
-| Number Of Beds          | Number of bedrooms (0–9, or 5+), or `ALL` for every bedroom count combined                                                                     |
-| Total Bonds             | Number of new bonds lodged in that quarter, for that location/dwelling type/bed count                                                          |
-| Active Bonds            | Number of bonds that were current (in effect) at some point during that quarter                                                                |
-| Closed Bonds            | Number of bonds closed/refunded during that quarter                                                                                            |
-| Median Rent             | The standard statistical median of weekly rent, from bonds lodged in that quarter                                                              |
-| Geometric Mean Rent     | Exponential of the mean of log-transformed weekly rents, useful for reducing skew caused by rent values clustering around round dollar amounts |
-| Upper Quartile Rent     | Sample 75th percentile of weekly rent (in NZD) from bonds lodged in that quarter                                                               |
-| Lower Quartile Rent     | Sample 25th percentile of weekly rent (in NZD) from bonds lodged in that quarter                                                               |
-| Log Std Dev Weekly Rent | Standard deviation of the natural log of weekly rent, indicates price dispersion/variance within that location and dwelling category           |
-| beds_cat                | A column added by our transformations, this is a categorical version of the Number Of Beds column                                              |
-| beds_num                | A column added by our transformations, this is a numerical version of the Number Of Beds column. Note "ALL" and "5+" were assigned to NA.      |
+- [https://www.tenancy.govt.nz/rent-bond-and-bills/market-rent/market-rent-explained/](https://www.tenancy.govt.nz/rent-bond-and-bills/market-rent/market-rent-explained/)
+- [https://www.tenancy.govt.nz/about-tenancy-services/data-and-statistics/rental-bond-data/](https://www.tenancy.govt.nz/about-tenancy-services/data-and-statistics/rental-bond-data/)
+
+| Column                  | Description                                                                                                                                                                  |
+| ----------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| TimeFrame               | The quarter this row covers, shown as the quarter's start date (e.g. 2026-04-01 = Q2 2026, Apr–Jun)                                                                          |
+| Location Id             | SA2-2019 area code (Statistics NZ statistical area). `-99` = New Zealand-wide total                                                                                          |
+| Dwelling Type           | Property type: House/Townhouse, Apartment, Flat, Room, Boarding House, or `ALL` (all types combined)                                                                         |
+| Number Of Beds          | Number of bedrooms (0–9, or 5+), or `ALL` for every bedroom count combined                                                                                                   |
+| Total Bonds             | Number of new bonds lodged in that quarter, for that location/dwelling type/bed count                                                                                        |
+| Active Bonds            | Number of bonds that were current (in effect) at some point during that quarter                                                                                              |
+| Closed Bonds            | Number of bonds closed/refunded during that quarter                                                                                                                          |
+| Median Rent             | The standard statistical median of weekly rent, from bonds lodged in that quarter                                                                                            |
+| Geometric Mean Rent     | Exponential of the mean of log-transformed weekly rents, useful for reducing skew caused by rent values clustering around round dollar amounts                               |
+| Upper Quartile Rent     | Synthetic 75th percentile weekly rent (in NZD). Parametrically estimated assuming a log-normal rent distribution to smooth out artificial price clustering at round numbers. |
+| Lower Quartile Rent     | Synthetic 25th percentile weekly rent (in NZD). Parametrically estimated assuming a log-normal rent distribution to smooth out artificial price clustering at round numbers. |
+| Log Std Dev Weekly Rent | Standard deviation of the natural log of weekly rent, indicates price dispersion/variance within that location and dwelling category                                         |
+| beds_cat                | A column added by our transformations, this is a categorical version of the Number Of Beds column                                                                            |
+| beds_num                | A column added by our transformations, this is a numerical version of the Number Of Beds column. Note "ALL" and "5+" were assigned to NA.                                    |
 
 ## 🪡 Filtering Decisions
 
