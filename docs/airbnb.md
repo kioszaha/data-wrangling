@@ -31,6 +31,10 @@ Column data obtained from [Inside Airbnb Data Dictionary](https://docs.google.co
 Total number of columns has been reduced from 20 to 17.
 10,639 rows were dropped due to missing price, alongside 37 rows due to missing minimum_nights. In total 10,676 rows were dropped.
 
+### Longitude/Latitude
+
+Longitude and latitude is a critical part of the analysis for next week, so we made sure every row had this data. We dropped zero rows as every row had values for these columns.
+
 ### Neighbourhood_group
 
 This column was dropped. Every Value is "Christchurch City" data is redundent anyless population changes to include more regions.
