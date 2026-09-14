@@ -8,7 +8,7 @@
 
 - 😎 Oliver Howorth
 
--  Suganya Karthic Kumar
+- Suganya Karthic Kumar
 
 - � ~~Hattie Zhong~~
 
@@ -60,50 +60,3 @@ Command cheat sheet:
 | uv run [file-name].py| Run a file\*|
 
 > \*Alternatively, you can activate the virtual environment (e.g, with `.venv/Scripts/activate`) and then run files like normal (e.g, `py [file-name].py`).
-
-## 🛖 Airbnb Dataset
-
-Source - [Inside Airbnb](https://insideairbnb.com/new-zealand/)
-Column data obtained from [Inside Airbnb Data Dictionary](https://docs.google.com/spreadsheets/d/1iWCNJcSutYqpULSQHlNyGInUvHg2BoUGoNRIGa6Szc4)
-
-| Column                         | Description                                                                                                                                                                             |
-| ------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| id                             | Airbnb's unique identifier for the listing                                                                                                                                              |
-| name                           | Name of the listing                                                                                                                                                                     |
-| host_id                        | Airbnb's unique identifier for the host/user                                                                                                                                            |
-| host_name                      | Name of the host. Usually just the first name(s).                                                                                                                                       |
-| neighbourhood_group            | High level city/district of the listing                                                                                                                                                 |
-| neighbourhood                  | Suburb/subdistrict of the listing                                                                                                                                                       |
-| latitude                       | Latitude coordinate of the Airbnb property                                                                                                                                              |
-| longitude                      | Longitude coordinate of the Airbnb property                                                                                                                                             |
-| room_type                      | All homes are grouped into the following three room types: Entire place, Private room, and Shared room                                                                                  |
-| price                          | Daily price in local currency                                                                                                                                                           |
-| minimum_nights                 | minimum number of night stay for the listing (calendar rules may be different)                                                                                                          |
-| number_of_reviews              | The number of reviews a listing has                                                                                                                                                     |
-| last_review                    | The date of the last/newest review                                                                                                                                                      |
-| reviews_per_month              | The average number of reviews per month the over the lifetime of the listing.                                                                                                           |
-| calculated_host_listings_count | The number of listings the host has in the current scrape, in the city/region geography.                                                                                                |
-| availability_365               | The availability of the listing 365 days in the future as determined by the calendar. Note a listing may not be available because it has been booked by a guest or blocked by the host. |
-| number_of_reviews_ltm          | The number of reviews the listing has (in the last 12 months)                                                                                                                           |
-| license                        | The licence/permit/registration number                                                                                                                                                  |
-
-
-## 🛖 Quarterly Tenancy
-
-Source - [Tenancy Services](https://www.tenancy.govt.nz/about-tenancy-services/data-and-statistics/rental-bond-data/)
-
-
-| Column                    | Description                                                                                                   |
-|---------------------------|-----------------------------------------------------------------------------------------------------------------|
-| TimeFrame                 | The quarter this row covers, shown as the quarter's start date (e.g. 2026-04-01 = Q2 2026, Apr–Jun)             |
-| Location Id               | SA2-2019 area code (Statistics NZ statistical area). `-99` = New Zealand-wide total                             |
-| Dwelling Type             | Property type: House/Townhouse, Apartment, Flat, Room, Boarding House, or `ALL` (all types combined)            |
-| Number Of Beds            | Number of bedrooms (0–9, or 5+), or `ALL` for every bedroom count combined                                      |
-| Total Bonds               | Number of new bonds lodged in that quarter, for that location/dwelling type/bed count                           |
-| Active Bonds              | Number of bonds that were current (in effect) at some point during that quarter                                 |
-| Closed Bonds              | Number of bonds closed/refunded during that quarter                                                             |
-| Median Rent               | The standard statistical median of weekly rent, from bonds lodged in that quarter                               |
-| Geometric Mean Rent       | A smoothed alternative to the median (nth root of the product of values) — reduces distortion from rents clustering at round numbers |
-| Upper Quartile Rent       | Smoothed estimate of the 75th percentile weekly rent, assuming a log-normal rent distribution                   |
-| Lower Quartile Rent       | Smoothed estimate of the 25th percentile weekly rent, assuming a log-normal rent distribution                   |
-| Log Std Dev Weekly Rent   | Standard deviation of the log of weekly rent — a measure of how spread out rents are within that group          |
