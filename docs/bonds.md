@@ -23,17 +23,20 @@ Used under Creative Commons Attribution 3.0 New Zealand License
 
 ## 🪡 Filtering Decisions
 
-**TimeFrame**
+### TimeFrame
+
 We filtered the bonds dataframe to only contain entries within the date range of 5th October 2025 - 19th June 2026 to ensure we only have entries that overlap with the airbnb data.
 
 This filtering decision dropped 208327 rows (92.15%).
 
-**Location ID**
+### Location ID
+
 Location ID seems to be a critical column in ongoing analysis, so we dropped any rows where Location ID is missing.
 
 This filtering decision dropped 62 rows (0.35%).
 
-**Number Of Beds**
+### Number Of Beds
+
 The dataset originally provided this as a categorical string column. The unique values were:
 
 ['1', '2', '3', '4', '5', '9', 'ALL', '5+', '6', nan, '0', '7', '15', '8']
@@ -44,5 +47,6 @@ The open-ended '5+' was dropped from the numerical column as no documentation re
 
 We initially intended to drop rows with 'ALL' as the Number of Beds, however we were unsure if Number of Beds would be a crucial part of the analysis we will be doing on the data - and dropping rows with Number Of Beds = "ALL" would have shrunk the data by a further 40% so we have mapped it to the NA value in the numerical column and retained it in the categorical column.
 
-**Median Rent**
+### Median Rent
+
 We went to drop rows with missing Median Rent, but thankfully there were no rows that met this condition.
