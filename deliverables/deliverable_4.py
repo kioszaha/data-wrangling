@@ -11,8 +11,6 @@ from rich import print
 
 from config import DATA_DIR, OUTPUT_DIR
 
-OUTPUT_PATH = OUTPUT_DIR / "cleaned_listings.csv"
-
 
 def clean_airbnb_data() -> pd.DataFrame:
     # Make sure the result from deliverable 3 exists
@@ -70,7 +68,6 @@ def clean_airbnb_data() -> pd.DataFrame:
         f"[purple]Final clean Airbnb dataset has {len(df)} rows (retained {(len(df) / initial_rows) * 100:.2f}% of original data)"
     )
 
-    df.to_csv(OUTPUT_PATH, index=False)
     return df
 
 
@@ -150,6 +147,19 @@ def clean_bonds_data(bonds_df: pd.DataFrame) -> pd.DataFrame:
 
 
 def main():
-    clean_airbnb_data()
+
+    CLEANED_AIRBNB_OUTPUT_PATH = OUTPUT_DIR / "cleaned_listings.csv"
+    cleaned_airbnb_df = clean_airbnb_data()
+    cleaned_airbnb_df.to_csv(CLEANED_AIRBNB_OUTPUT_PATH, index=False)
+    print(
+        f"➡️ [blue] Saved cleaned Airbnb data to [bold]{CLEANED_AIRBNB_OUTPUT_PATH}[/bold][/blue]"
+    )
+
+    CLEANED_BONDS_OUTPUT_PATH = OUTPUT_DIR / "cleaned_bonds.csv"
     bonds_df = load_bonds_data()
-    clean_bonds_data(bonds_df)
+    cleaned_bonds_df = clean_bonds_data(bonds_df)
+    cleaned_bonds_df.to_csv(CLEANED_BONDS_OUTPUT_PATH, index=False)
+
+    print(
+        f"➡️ [blue] Saved cleaned bonds data to [bold]{CLEANED_BONDS_OUTPUT_PATH}[/bold][/blue]"
+    )
