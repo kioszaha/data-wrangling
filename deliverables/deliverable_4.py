@@ -42,21 +42,21 @@ def clean_airbnb_data() -> pd.DataFrame:
     geo_nulls = df[["latitude", "longitude"]].isna().any(axis=1).sum()
     df = df.dropna(subset=["latitude", "longitude"]).copy()
     print(
-        f"[purple]Missing latitude/longitude dropped {geo_nulls} rows ({(geo_nulls / initial_rows) * 100:.2f}%)"
+        f"[purple]Missing latitude/longitude dropped {geo_nulls} rows ({(geo_nulls / (geo_nulls + len(df))) * 100:.2f}%)"
     )
 
     # Drop any rows missing minimum_nights or invalid price values (e.g., <= 0)
     min_nights_nulls = df["minimum_nights"].isna().sum()
     df = df.dropna(subset=["minimum_nights"]).copy()
     print(
-        f"[purple]Missing minimum_nights dropped {min_nights_nulls} rows ({(min_nights_nulls / len(df)) * 100:.2f}%)"
+        f"[purple]Missing minimum_nights dropped {min_nights_nulls} rows ({(min_nights_nulls / (min_nights_nulls + len(df))) * 100:.2f}%)"
     )
 
     invalid_prices = (df["price"].isna()) | (df["price"] <= 0)
     invalid_price_count = invalid_prices.sum()
     df = df[~invalid_prices].copy()
     print(
-        f"[purple]Missing or invalid price dropped {invalid_price_count} rows ({(invalid_price_count / len(df)) * 100:.2f}%)"
+        f"[purple]Missing or invalid price dropped {invalid_price_count} rows ({(invalid_price_count / (invalid_price_count + len(df))) * 100:.2f}%)"
     )
 
     # Filled in missing values for reviews_per_month (missing means 0 reviews)
