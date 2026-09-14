@@ -115,17 +115,14 @@ def clean_bonds_data(bonds_df: pd.DataFrame) -> pd.DataFrame:
     print(
         f"[yellow]{(len(bonds_cleaned[bonds_cleaned['Number Of Beds'] == '5+']) / len(bonds_cleaned)) * 100:.2f}% of the data has '5+' as Number of Beds"
     )
+    print(
+        f"[yellow]{(len(bonds_cleaned[bonds_cleaned['Number Of Beds'] == 'ALL']) / len(bonds_cleaned)) * 100:.2f}% of the data has 'ALL' as Number of Beds"
+    )
     # Approx 1% of the data has a string '5+' as the Number Of Beds
     # We are going to preserve the 5+ for any potential categorical analysis, but drop it for a numerical column
 
     # Drop the summary aggregate rows since 'ALL' isn't an actual bed count
-    all_rows_count = (bonds_cleaned["Number Of Beds"] == "ALL").sum()
-    bonds_cleaned = bonds_cleaned[bonds_cleaned["Number Of Beds"] != "ALL"].copy()
-    print(
-        f"[yellow]Dropped {all_rows_count} aggregate summary rows where Number Of Beds was 'ALL'"
-    )
-
-    bed_order = ["0", "1", "2", "3", "4", "5", "5+", "6", "7", "8", "9", "15"]
+    bed_order = ["0", "1", "2", "3", "4", "5", "5+", "6", "7", "8", "9", "15", "ALL"]
     bonds_cleaned["beds_cat"] = pd.Categorical(
         bonds_cleaned["Number Of Beds"], categories=bed_order, ordered=True
     )
@@ -133,6 +130,7 @@ def clean_bonds_data(bonds_df: pd.DataFrame) -> pd.DataFrame:
     bonds_cleaned["beds_num"] = (
         bonds_cleaned["Number Of Beds"]
         .replace("5+", np.nan)
+        .replace("ALL", np.nan)
         .astype(float)
         .astype("Int64")
     )
@@ -141,7 +139,7 @@ def clean_bonds_data(bonds_df: pd.DataFrame) -> pd.DataFrame:
     rent_nulls = bonds_cleaned["Median Rent"].isna().sum()
     bonds_cleaned = bonds_cleaned.dropna(subset=["Median Rent"]).copy()
     print(
-        f"[yellow]Missing Median Rent dropped {rent_nulls} rows ({(rent_nulls / len(bonds_cleaned)) * 100:.2f}%)"
+        f"[yellow]Missing Median Rent dropped {rent_nulls} rows ({(rent_nulls / len(bonds_cleaned) + rent_nulls) * 100:.2f}%)"
     )
 
     print(
