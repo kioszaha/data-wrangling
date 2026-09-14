@@ -29,7 +29,7 @@ Column data obtained from [Inside Airbnb Data Dictionary](https://docs.google.co
 ## 🪡 Filtering Decisions
 
 Total number of columns has been reduced from 20 to 17.
-10,639 rows were dropped due to missing price, alongside 37 rows due to missing minimum_nights. In total 10,676 rows were dropped.
+10,639 rows were dropped due to missing or invalid price after the missing-`minimum_nights` rows were removed, alongside 37 rows due to missing `minimum_nights`. In total 10,676 rows were dropped.
 
 ### Longitude/Latitude
 
@@ -53,7 +53,7 @@ We dropped all rows with a missing Minimum_nights. There were only 37 missing ro
 
 ### Price
 
-We dropped all rows with a missing or invalid Price, losing 10,639 rows.
+We dropped all rows with a missing or invalid Price, losing 10,639 rows after the `minimum_nights` filter.
 
 Next week's deliverable will be on Rental Price vs Availble Properties. Having missing data is not useful for next weeks goal.
 
