@@ -1,6 +1,6 @@
 # 🛖 Quarterly Tenancy
 
-Data Source - [('The Ministry of Business, Innovation and Employment')](https://www.tenancy.govt.nz/about-tenancy-services/data-and-statistics/rental-bond-data/)
+Data Source - [Tenancy Services: Rental bond data](https://www.tenancy.govt.nz/about-tenancy-services/data-and-statistics/rental-bond-data/), published by the Ministry of Business, Innovation and Employment.
 
 Used under Creative Commons Attribution 3.0 New Zealand License
 
@@ -25,24 +25,25 @@ Documentation for this dataset was compiled using the following web pages:
 | Upper Quartile Rent     | Synthetic 75th percentile weekly rent (in NZD). Parametrically estimated assuming a log-normal rent distribution to smooth out artificial price clustering at round numbers. |
 | Lower Quartile Rent     | Synthetic 25th percentile weekly rent (in NZD). Parametrically estimated assuming a log-normal rent distribution to smooth out artificial price clustering at round numbers. |
 | Log Std Dev Weekly Rent | Standard deviation of the natural log of weekly rent, indicates price dispersion/variance within that location and dwelling category                                         |
-| beds_cat                | A column added by our transformations, this is a categorical version of the Number Of Beds column                                                                            |
-| beds_num                | A column added by our transformations, this is a numerical version of the Number Of Beds column. Note "ALL" and "5+" were assigned to NA.                                    |
+| beds_num                | A column added by our transformations, this is a numerical version of the Number Of Beds column. Note "ALL", "5+", and missing source values are assigned to NA.             |
 
 ## 🪡 Filtering Decisions
 
-In total, our cleaned data set had 17691 rows (retained 7.83% of original data)
+The raw file contained 226,080 rows. After cleaning, the dataset has 27,118 rows (retained 11.99% of the original data).
 
 ### TimeFrame
 
-We filtered the bonds dataframe to only contain entries within the date range of 5th October 2025 - 19th June 2026 to ensure we only have entries that overlap with the airbnb data.
+We retained every quarterly record whose quarter overlaps 5 October 2025 to 19 June 2026, the date range covered by the Airbnb snapshots. Because `TimeFrame` stores the quarter start date, this includes Q4 2025 (`2025-10-01`), Q1 2026, and Q2 2026.
 
-This filtering decision dropped 208327 rows (92.15%).
+This filtering decision dropped 198,868 rows (87.96%).
 
 ### Location ID
 
 Location ID seems to be a critical column in ongoing analysis, so we dropped any rows where Location ID is missing.
 
-This filtering decision dropped 62 rows (0.35%).
+`Location Id = -99` represents the New Zealand-wide total. There are 127 such rows in the retained period. These rows are retained for now because the assignment requires retaining `Location Id`, but they must be excluded when restricting the bond data to Christchurch for the comparison analysis.
+
+This filtering decision dropped 94 rows (0.35%).
 
 ### Number Of Beds
 
@@ -50,12 +51,14 @@ The dataset originally provided this as a categorical string column. The unique 
 
 ['1', '2', '3', '4', '5', '9', 'ALL', '5+', '6', nan, '0', '7', '15', '8']
 
-In the interest of making sure this data can be used for whatever analysis necessary, we decided to split this into `beds_cat` (categorical) and `beds_num` (numerical) columns.
+We retain the original `Number Of Beds` labels and add `beds_num` for numerical bedroom analysis.
 
-The open-ended '5+' was dropped from the numerical column as no documentation regarding the actual meaning of this value could be found, and we did not want to assume a value.
+The open-ended '5+' is retained in the original `Number Of Beds` column but is represented as missing in `beds_num`; we did not assume that it equals a particular numeric value.
 
-We initially intended to drop rows with 'ALL' as the Number of Beds, however we were unsure if Number of Beds would be a crucial part of the analysis we will be doing on the data - and dropping rows with Number Of Beds = "ALL" would have shrunk the data by a further 40% so we have mapped it to the NA value in the numerical column and retained it in the categorical column.
+We initially intended to drop rows with 'ALL' as the Number of Beds. Instead, we retained these aggregate rows in the original `Number Of Beds` column and represented them as missing in `beds_num`.
+
+The `Number Of Beds` field has 876 missing values in the retained period. These rows were kept because their other measures remain usable; their `beds_num` value is missing. Overall, `beds_num` has 11,911 missing values: 10,764 `ALL` rows, 271 `5+` rows, and 876 rows missing the source bedroom value.
 
 ### Median Rent
 
-We went to drop rows with missing Median Rent, but thankfully there were no rows that met this condition.
+We dropped rows with missing `Median Rent`, since rent is a core measure for the planned comparison. No retained-period rows met this condition.

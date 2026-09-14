@@ -66,7 +66,7 @@ class AirbnbListings:
         listings: list[AirbnbListing] = []
         self._month_map: dict[int, int] = {}
 
-        for i, listing_path in enumerate(airbnb_dir.rglob("*.csv")):
+        for i, listing_path in enumerate(sorted(airbnb_dir.rglob("*.csv"))):
             date = self._FILENAME_RE.search(listing_path.name)
 
             if not date:

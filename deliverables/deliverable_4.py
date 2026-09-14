@@ -5,7 +5,6 @@ Using the combined_listening.csv file from Deliverable 3
 
 """
 
-import numpy as np
 import pandas as pd
 from rich import print
 
@@ -20,7 +19,7 @@ def clean_airbnb_data() -> pd.DataFrame:
             f"{INPUT_FILE} does not exist. Did you run deliverable_3()?"
         )
 
-    print("[bold purple]Filtering the bonds dataset...")
+    print("[bold purple]Filtering the Airbnb dataset...")
 
     df = pd.read_csv(INPUT_FILE)
     initial_rows = len(df)
@@ -87,12 +86,17 @@ def clean_bonds_data(bonds_df: pd.DataFrame) -> pd.DataFrame:
     print("[bold yellow]Filtering the bonds dataset...[/bold yellow]")
     initial_rows = len(bonds_df)
 
-    # Filter the bonds data to be the same timeframe as the airbnb data,
-    # Which is 5th October 2025 - 19th June 2026
+    # The Airbnb snapshots cover 5 October 2025 to 19 June 2026. The bond
+    # dataset is quarterly and TimeFrame stores each quarter's start date, so
+    # retain every quarter that overlaps this date range. This includes Q4
+    # 2025, even though its start date is 1 October 2025.
 
     start = pd.Timestamp("2025-10-05")
     end = pd.Timestamp("2026-06-19")
-    bonds_cleaned = bonds_df[bonds_df["TimeFrame"].between(start, end)].copy()
+    quarter_end = bonds_df["TimeFrame"] + pd.offsets.QuarterEnd(0)
+    bonds_cleaned = bonds_df[
+        (bonds_df["TimeFrame"] <= end) & (quarter_end >= start)
+    ].copy()
 
     # Log how many rows got chopped by date filtering
     rows_lost_timeframe = initial_rows - len(bonds_cleaned)
@@ -102,10 +106,11 @@ def clean_bonds_data(bonds_df: pd.DataFrame) -> pd.DataFrame:
 
     # Location Id is a key field, so we need to drop any rows missing it
     location_nulls = bonds_cleaned["Location Id"].isna().sum()
+    timeframe_rows = len(bonds_cleaned)
     bonds_cleaned = bonds_cleaned.dropna(subset=["Location Id"]).copy()
     bonds_cleaned["Location Id"] = bonds_cleaned["Location Id"].astype("Int64")
     print(
-        f"[yellow]Missing Location Id dropped {location_nulls} rows ({(location_nulls / len(bonds_cleaned)) * 100:.2f}%)"
+        f"[yellow]Missing Location Id dropped {location_nulls} rows ({(location_nulls / timeframe_rows) * 100:.2f}%)"
     )
 
     # Clean the data
@@ -118,25 +123,20 @@ def clean_bonds_data(bonds_df: pd.DataFrame) -> pd.DataFrame:
     # Approx 1% of the data has a string '5+' as the Number Of Beds
     # We are going to preserve the 5+ for any potential categorical analysis, but drop it for a numerical column
 
-    # Drop the summary aggregate rows since 'ALL' isn't an actual bed count
-    bed_order = ["0", "1", "2", "3", "4", "5", "5+", "6", "7", "8", "9", "15", "ALL"]
-    bonds_cleaned["beds_cat"] = pd.Categorical(
-        bonds_cleaned["Number Of Beds"], categories=bed_order, ordered=True
-    )
-
     bonds_cleaned["beds_num"] = (
-        bonds_cleaned["Number Of Beds"]
-        .replace("5+", np.nan)
-        .replace("ALL", np.nan)
-        .astype(float)
+        pd.to_numeric(
+            bonds_cleaned["Number Of Beds"].replace({"5+": pd.NA, "ALL": pd.NA}),
+            errors="coerce",
+        )
         .astype("Int64")
     )
 
     # Drop any rows missing core rent stats (Median Rent)
     rent_nulls = bonds_cleaned["Median Rent"].isna().sum()
+    rent_rows = len(bonds_cleaned)
     bonds_cleaned = bonds_cleaned.dropna(subset=["Median Rent"]).copy()
     print(
-        f"[yellow]Missing Median Rent dropped {rent_nulls} rows ({(rent_nulls / len(bonds_cleaned) + rent_nulls) * 100:.2f}%)"
+        f"[yellow]Missing Median Rent dropped {rent_nulls} rows ({(rent_nulls / rent_rows) * 100:.2f}%)"
     )
 
     print(

@@ -60,3 +60,14 @@ Command cheat sheet:
 | uv run [file-name].py| Run a file\*|
 
 > \*Alternatively, you can activate the virtual environment (e.g, with `.venv/Scripts/activate`) and then run files like normal (e.g, `py [file-name].py`).
+
+## 📊 Deliverable 4 documentation
+
+- [Airbnb dataset source, column meanings, and cleaning decisions](docs/airbnb.md)
+- [Tenancy Services bond dataset source, column meanings, and cleaning decisions](docs/bonds.md)
+
+Run the complete reproducible pipeline with:
+
+```text
+uv run main.py
+```
