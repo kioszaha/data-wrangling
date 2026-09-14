@@ -5,6 +5,49 @@ Column data obtained from [Inside Airbnb Data Dictionary](https://docs.google.co
 
 ## 📜 Documentation
 
+# Data Cleaning for Airbnb Combined Dataset
+
+File:.output/combined_listing.csv
+
+## Columns Dropped
+
+1. Neighbourhood_group 
+
+Reason: Every Value is "Christchurch City" data is redundent anyless population changes to include more regions.
+
+2. License 
+
+Reason: 100% of the Data in License column was missing.
+
+3. Host_Name
+
+Reason: Redundant column becaue host_id already uniquly identifies each host. 
+
+## Dropped Rows
+
+1. Minimum_nights (Lost 37 Rows)
+
+Reason: Only 37 missing rows and there is no sensible value to replace it with.
+
+2. Price (Lost 10639 Rows)
+
+Reason: Next's week's deliverable will be on Rental Price vs Availble Properties. Having missing data is not useful for next weeks goal. 
+
+## Filled Values
+
+1. Reviews_per_month with 0
+
+Reason: I'm assuming that having missing values here indicts a real value. e.g There has been zero reviews this month.  
+
+## Notes
+
+1. Thought about removing ID but decided against it becasue it could be useful for organsing data later on
+
+# Consequnces
+
+1. Total number of columns has been reduced from 20 to 17.
+2. 10,639 rows were dropped due to missing price, alongside 37 rows due to missing minimum_nights. In total 10,676 rows were dropped.
+
 | Column                         | Description                                                                                                                                                                             |
 | ------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | id                             | Airbnb's unique identifier for the listing                                                                                                                                              |
