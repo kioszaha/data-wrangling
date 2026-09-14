@@ -27,6 +27,8 @@ Documentation for this dataset was compiled using the following web page: [https
 
 ## 🪡 Filtering Decisions
 
+In total, our cleaned data set had 17691 rows (retained 7.83% of original data)
+
 ### TimeFrame
 
 We filtered the bonds dataframe to only contain entries within the date range of 5th October 2025 - 19th June 2026 to ensure we only have entries that overlap with the airbnb data.

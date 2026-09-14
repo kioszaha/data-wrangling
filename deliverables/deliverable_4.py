@@ -90,8 +90,6 @@ def clean_bonds_data(bonds_df: pd.DataFrame) -> pd.DataFrame:
     print("[bold yellow]Filtering the bonds dataset...[/bold yellow]")
     initial_rows = len(bonds_df)
 
-    print(bonds_df.info())
-
     # Filter the bonds data to be the same timeframe as the airbnb data,
     # Which is 5th October 2025 - 19th June 2026
 
