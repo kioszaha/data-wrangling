@@ -123,13 +123,10 @@ def clean_bonds_data(bonds_df: pd.DataFrame) -> pd.DataFrame:
     # Approx 1% of the data has a string '5+' as the Number Of Beds
     # We are going to preserve the 5+ for any potential categorical analysis, but drop it for a numerical column
 
-    bonds_cleaned["beds_num"] = (
-        pd.to_numeric(
-            bonds_cleaned["Number Of Beds"].replace({"5+": pd.NA, "ALL": pd.NA}),
-            errors="coerce",
-        )
-        .astype("Int64")
-    )
+    bonds_cleaned["beds_num"] = pd.to_numeric(
+        bonds_cleaned["Number Of Beds"].replace({"5+": pd.NA, "ALL": pd.NA}),
+        errors="coerce",
+    ).astype("Int64")
 
     # Drop any rows missing core rent stats (Median Rent)
     rent_nulls = bonds_cleaned["Median Rent"].isna().sum()
