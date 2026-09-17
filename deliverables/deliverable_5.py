@@ -134,5 +134,27 @@ def biggest_rental_gap():
 
     return gap_by_area
 
+def compare_property_counts():
+    listings = pd.read_csv(OUTPUT_DIR / "cleaned_listings_with_area_code.csv")
+    bonds = pd.read_csv(OUTPUT_DIR / "cleaned_bonds.csv")
+
+    bonds_all = bonds[
+        (bonds["Dwelling Type"] == "ALL") & (bonds["Number Of Beds"] == "ALL")
+    ]
+
+    airbnb_counts = listings.groupby("area_code")["id"].nunique().rename("airbnb_count")
+    rental_counts = bonds_all.groupby("Location Id")["Total Bonds"].sum().rename("rental_total_bonds")
+
+    comparison = pd.concat([airbnb_counts, rental_counts], axis=1).dropna()
+    comparison["airbnb_to_rental_ratio"] = (
+        comparison["airbnb_count"] / comparison["rental_total_bonds"]
+    )
+    comparison = comparison.sort_values("airbnb_count", ascending=False)
+
+    print("Top 10 areas by number of Airbnb listings:")
+    print(comparison.head(10))
+
+    return comparison
+
 if __name__ == "__main__":
     main()
