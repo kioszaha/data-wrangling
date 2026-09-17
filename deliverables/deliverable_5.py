@@ -59,6 +59,45 @@ def main():
     df.to_csv(output_path, index=False)
     print(f"Saved to {output_path}")
 
+def month_to_quarter_start(row):
+    month = row["published_month"]
+    year = row["published_year"]
+    if month in [1, 2, 3]:
+        return f"{year}-01-01"
+    elif month in [4, 5, 6]:
+        return f"{year}-04-01"
+    elif month in [7, 8, 9]:
+        return f"{year}-07-01"
+    else:
+        return f"{year}-10-01"
+
+
+def join_datasets():
+    listings = pd.read_csv(OUTPUT_DIR / "cleaned_listings_with_area_code.csv")
+    bonds = pd.read_csv(OUTPUT_DIR / "cleaned_bonds.csv")
+
+    # Keep only the aggregate rows (all dwelling types, all bed counts combined)
+    bonds_all = bonds[
+        (bonds["Dwelling Type"] == "ALL") & (bonds["Number Of Beds"] == "ALL")
+    ].copy()
+
+    listings["TimeFrame"] = listings.apply(month_to_quarter_start, axis=1)
+
+    joined = listings.merge(
+        bonds_all,
+        left_on=["area_code", "TimeFrame"],
+        right_on=["Location Id", "TimeFrame"],
+        how="inner",
+    )
+
+    print(f"Listings rows: {len(listings)}")
+    print(f"Bonds rows (ALL/ALL only): {len(bonds_all)}")
+    print(f"Joined rows: {len(joined)}")
+
+    joined.to_csv(OUTPUT_DIR / "joined_listings_bonds.csv", index=False)
+    print(f"Saved to {OUTPUT_DIR / 'joined_listings_bonds.csv'}")
+
+    return joined
 
 if __name__ == "__main__":
     main()
