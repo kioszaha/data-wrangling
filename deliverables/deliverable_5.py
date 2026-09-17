@@ -156,5 +156,29 @@ def compare_property_counts():
 
     return comparison
 
+def compare_bed_counts():
+    listings = pd.read_csv(OUTPUT_DIR / "cleaned_listings_with_area_code.csv")
+    bonds = pd.read_csv(OUTPUT_DIR / "cleaned_bonds.csv")
+
+    airbnb_units = listings.groupby("area_code")["id"].nunique().rename("airbnb_units")
+
+    # Exclude ALL/5+/missing bed counts, weight bed count by number of bonds in that category
+    bonds_valid = bonds.dropna(subset=["beds_num"]).copy()
+    bonds_valid["total_beds"] = bonds_valid["beds_num"] * bonds_valid["Total Bonds"]
+
+    bonds_beds = (
+        bonds_valid.groupby("Location Id")["total_beds"]
+        .sum()
+        .rename("long_term_beds")
+    )
+
+    comparison = pd.concat([airbnb_units, bonds_beds], axis=1).dropna()
+    comparison = comparison.sort_values("airbnb_units", ascending=False)
+
+    print("Top 10 areas: Airbnb units vs long-term rental beds")
+    print(comparison.head(10))
+
+    return comparison
+
 if __name__ == "__main__":
     main()
