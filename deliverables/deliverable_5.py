@@ -99,5 +99,16 @@ def join_datasets():
 
     return joined
 
+def median_price_christchurch_central():
+    joined = pd.read_csv(OUTPUT_DIR / "joined_listings_bonds.csv")
+
+    cc = joined[joined["area_code"] == 326600]
+    median_price = cc["price"].median()
+
+    print(f"Number of listings in Christchurch Central: {len(cc)}")
+    print(f"Median Airbnb price in Christchurch Central: ${median_price:.2f}")
+
+    return median_price
+
 if __name__ == "__main__":
     main()
