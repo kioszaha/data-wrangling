@@ -110,5 +110,29 @@ def median_price_christchurch_central():
 
     return median_price
 
+def biggest_rental_gap():
+    joined = pd.read_csv(OUTPUT_DIR / "joined_listings_bonds.csv")
+
+    # Convert weekly median rent to a daily rate for fair comparison
+    joined["long_term_daily_rate"] = joined["Median Rent"] / 7
+    joined["price_gap"] = joined["price"] - joined["long_term_daily_rate"]
+
+    # Average gap per area_code
+    gap_by_area = (
+        joined.groupby("area_code")
+        .agg(
+            avg_gap=("price_gap", "mean"),
+            avg_short_term_price=("price", "mean"),
+            avg_long_term_daily_rate=("long_term_daily_rate", "mean"),
+            listing_count=("price_gap", "count"),
+        )
+        .sort_values("avg_gap", ascending=False)
+    )
+
+    print("Top 10 areas with the largest gap (short-term - long-term daily rate):")
+    print(gap_by_area.head(10))
+
+    return gap_by_area
+
 if __name__ == "__main__":
     main()
