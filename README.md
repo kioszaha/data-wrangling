@@ -61,7 +61,7 @@ Command cheat sheet:
 
 > \*Alternatively, you can activate the virtual environment (e.g, with `.venv/Scripts/activate`) and then run files like normal (e.g, `py [file-name].py`).
 
-## 📊 Deliverable 4 documentation
+## 📊 Documentation
 
 - [Airbnb dataset source, column meanings, and cleaning decisions](docs/airbnb.md)
 - [Tenancy Services bond dataset source, column meanings, and cleaning decisions](docs/bonds.md)
@@ -71,3 +71,7 @@ Run the complete reproducible pipeline with:
 ```text
 uv run main.py
 ```
+
+In order to run the entirety of deliverable 5, the KOORDINATES_API_KEY environment variable is required.
+
+This can be obtained from [Koordinates](https://koordinates.com/my/api/) and added to your .env file (it will be automatically read).
