@@ -2,6 +2,7 @@ import dotenv
 
 from deliverables.deliverable_3 import main as deliverable_3
 from deliverables.deliverable_4 import main as deliverable_4
+from deliverables.deliverable_5 import main as deliverable_5
 from utils.sync_data import sync_data
 
 dotenv.load_dotenv()
@@ -16,6 +17,9 @@ def main():
 
     # Deliverable 4
     deliverable_4()
+
+    # Deliverable 5
+    deliverable_5()
 
 
 if __name__ == "__main__":
