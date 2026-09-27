@@ -33,8 +33,8 @@ from config import DATA_DIR, OUTPUT_DIR
 
 load_dotenv()  # so the key is found even when this file is run on its own
 API_KEY = os.environ.get("KOORDINATES_API_KEY")
-LAYER_ID = 123515
-AREA_FIELD = "SA22026_V1_00"
+LAYER_ID = 98970
+AREA_FIELD = "SA22019_V1_00"
 API_URL = "https://koordinates.com/services/query/v1/vector.json"
 MIN_LISTINGS = 10  # ignore tiny areas when ranking the price gap
 
