@@ -85,16 +85,16 @@ def summarise_dataset(df: pd.DataFrame, exclude: list) -> pd.DataFrame:
 
     return summary_df
 
-def previous_weeks_plots_R():
+def previous_weeks_plots_R(input_csv, output_pdf):
     r_code = """
     
     library(dplyr)
     library(readr)
     library(ggplot2)
 
-    pdf(".output/combined_listings_graphs.pdf")
+    pdf(output_pdf)
 
-    dataset = read.csv(".output/combined_listings.csv")
+    dataset = read.csv(input_csv)
 
     chch_data_one = dataset %>%
       filter(neighbourhood_group == "Christchurch City")
@@ -110,7 +110,6 @@ def previous_weeks_plots_R():
         lims(x = c(0,2000)) + theme_bw()
     )
 
-    #section 2
     print(
       ggplot(dataset, aes(x = price)) +
         geom_histogram(binwidth = 10, colour = "white") +
@@ -118,7 +117,6 @@ def previous_weeks_plots_R():
         lims(x = c(0,2000)) + theme_bw()
     )
 
-    #section 3
     dataset$last_review <- as.Date(dataset$last_review, format = "%Y-%m-%d")
     dataset$days_since_june19 <- as.Date(paste(dataset$published_year, dataset$published_month, "01", sep="-")) - dataset$last_review
     dataset$days_since_june19 <- as.numeric(dataset$days_since_june19)
@@ -133,7 +131,6 @@ def previous_weeks_plots_R():
         lims(x = c(0, 1000)) + theme_bw()
     )
 
-    #section 4
     threshold <- quantile(dataset$number_of_reviews, 0.9, na.rm = TRUE)
 
     top_10 <- dataset %>%
@@ -196,4 +193,6 @@ def main():
     )
 
     #Task 8: Reproduce workflow and plots from last weeks no code software
-    previous_weeks_plots_R()
+    robjects.globalenv["output_pdf"] = str(OUTPUT_DIR / "test_combined_listings_graphs.pdf")
+    robjects.globalenv["input_csv"] = str(OUTPUT_DIR / "combined_listings.csv")
+    previous_weeks_plots_R("input_csv", "output_pdf")

@@ -37,7 +37,7 @@ LAYER_ID = 123515
 AREA_FIELD = "SA22026_V1_00"
 API_URL = "https://koordinates.com/services/query/v1/vector.json"
 MIN_LISTINGS = 10  # ignore tiny areas when ranking the price gap
-
+CHRISTCHURCH_CENTRAL_AREA_CODE = 326600
 
 # ---------------------------------------------------------------- area codes
 def get_area_code(coords: tuple[float, float]) -> str | None:
@@ -270,10 +270,11 @@ def median_price_christchurch_central(
     print("[bold magenta]Calculating the Christchurch Central median Airbnb price...")
     # Use all listings in the area, not just those that matched a bond row
     listings = pd.read_csv(listings_file)
-    cc = listings[listings["area_code"] == 326600]
+    cc = listings[listings["area_code"] == CHRISTCHURCH_CENTRAL_AREA_CODE]
     median_price = cc["price"].median()
 
-    location_name = location_names.get(326600, "Christchurch Central")
+
+    location_name = location_names.get(CHRISTCHURCH_CENTRAL_AREA_CODE, "Christchurch Central")
     print(f"[magenta]Number of listing rows in {location_name}: {len(cc)}")
     print(f"[magenta]Median Airbnb price in {location_name}: ${median_price:.2f}")
     return median_price
@@ -488,7 +489,7 @@ def sqlite_join(
     """,
         con,
     )
-    location_name = location_names.get(326600, "Christchurch Central")
+    location_name = location_names.get(CHRISTCHURCH_CENTRAL_AREA_CODE, "Christchurch Central")
     print(f"[blue]Median price in {location_name} (SQL):", median.iloc[0, 0])
     con.close()
     return joined
