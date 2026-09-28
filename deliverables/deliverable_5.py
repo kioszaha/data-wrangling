@@ -39,6 +39,7 @@ API_URL = "https://koordinates.com/services/query/v1/vector.json"
 MIN_LISTINGS = 10  # ignore tiny areas when ranking the price gap
 CHRISTCHURCH_CENTRAL_AREA_CODE = 326600
 
+
 # ---------------------------------------------------------------- area codes
 def get_area_code(coords: tuple[float, float]) -> str | None:
     """Fetch the area code for a latitude/longitude pair from Koordinates."""
@@ -273,8 +274,9 @@ def median_price_christchurch_central(
     cc = listings[listings["area_code"] == CHRISTCHURCH_CENTRAL_AREA_CODE]
     median_price = cc["price"].median()
 
-
-    location_name = location_names.get(CHRISTCHURCH_CENTRAL_AREA_CODE, "Christchurch Central")
+    location_name = location_names.get(
+        CHRISTCHURCH_CENTRAL_AREA_CODE, "Christchurch Central"
+    )
     print(f"[magenta]Number of listing rows in {location_name}: {len(cc)}")
     print(f"[magenta]Median Airbnb price in {location_name}: ${median_price:.2f}")
     return median_price
@@ -489,7 +491,9 @@ def sqlite_join(
     """,
         con,
     )
-    location_name = location_names.get(CHRISTCHURCH_CENTRAL_AREA_CODE, "Christchurch Central")
+    location_name = location_names.get(
+        CHRISTCHURCH_CENTRAL_AREA_CODE, "Christchurch Central"
+    )
     print(f"[blue]Median price in {location_name} (SQL):", median.iloc[0, 0])
     con.close()
     return joined
@@ -534,7 +538,3 @@ def main() -> None:
         cleaned_bonds_file,
         location_names,
     )
-
-
-if __name__ == "__main__":
-    main()

@@ -4,8 +4,6 @@ from rich import print
 from config import OUTPUT_DIR
 from utils.file_explorer import AirbnbListings, file_explorer
 
-import rpy2.robjects as robjects
-
 
 def combine_datasets(airbnb_listings: AirbnbListings) -> pd.DataFrame:
     """Returns a concated dataframe consisting of all the listings
@@ -85,7 +83,26 @@ def summarise_dataset(df: pd.DataFrame, exclude: list) -> pd.DataFrame:
 
     return summary_df
 
-def previous_weeks_plots_R(input_csv, output_pdf):
+
+def previous_weeks_plots_R(input_csv: str, output_pdf: str) -> None:
+
+    try:
+        from rpy2 import robjects
+
+    except ValueError as e:
+        print(e)
+        if "r_home is None. Try python -m rpy2.situation" == str(e):
+            print(
+                "[red bold]R was not found on your system. Skipping generating plots."
+            )
+            return
+        print(
+            "[red bold]An error occured importing robjects. Skipping generating plots."
+        )
+
+    robjects.globalenv["input_csv"] = str(OUTPUT_DIR / input_csv)
+    robjects.globalenv["output_pdf"] = str(OUTPUT_DIR / output_pdf)
+
     r_code = """
     
     library(dplyr)
@@ -149,7 +166,6 @@ def previous_weeks_plots_R(input_csv, output_pdf):
     robjects.r(r_code)
 
 
-
 def main():
     # Obtain the AirbnbListings object
     airbnb_listings = file_explorer("airbnb")
@@ -192,7 +208,6 @@ def main():
         f"➡️ [blue] Saved combined dataset to [bold]{combined_dataset_output_path}[/bold][/blue]"
     )
 
-    #Task 8: Reproduce workflow and plots from last weeks no code software
-    robjects.globalenv["output_pdf"] = str(OUTPUT_DIR / "test_combined_listings_graphs.pdf")
-    robjects.globalenv["input_csv"] = str(OUTPUT_DIR / "combined_listings.csv")
-    previous_weeks_plots_R("input_csv", "output_pdf")
+    # Task 8: Reproduce workflow and plots from last weeks no code software
+
+    previous_weeks_plots_R("combined_listings.csv", "test_combined_listings_graphs.pdf")
