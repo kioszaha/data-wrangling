@@ -65,6 +65,8 @@ Command cheat sheet:
 
 - [Airbnb dataset source, column meanings, and cleaning decisions](docs/airbnb.md)
 - [Tenancy Services bond dataset source, column meanings, and cleaning decisions](docs/bonds.md)
+- [Design principles: pipeline inputs, outputs, steps, and coding strategies](docs/design_principles.md)
+- [Coding standards, changes made, and a worked sanity check](docs/coding_standards.md)
 
 Run the complete reproducible pipeline with:
 
@@ -75,3 +77,7 @@ uv run main.py
 In order to run the entirety of deliverable 5, the KOORDINATES_API_KEY environment variable is required.
 
 This can be obtained from [Koordinates](https://koordinates.com/my/api/) and added to your .env file (it will be automatically read).
+
+Deliverable 3 re-runs last week's R plots through `rpy2`, so those plots are only written when a
+working R installation is available. Without R that one step logs that it is skipping and the
+rest of the pipeline continues.

@@ -1,7 +1,7 @@
 """
 Clean the Christchurch Airbnb listings dataset (Deliverable 4)
 
-Using the combined_listening.csv file from Deliverable 3
+Using the combined_listings.csv file from Deliverable 3
 
 """
 
@@ -10,10 +10,22 @@ from rich import print
 
 from config import DATA_DIR, OUTPUT_DIR
 
+COMBINED_LISTINGS_FILE = OUTPUT_DIR / "combined_listings.csv"
+BONDS_FILE = (
+    DATA_DIR / "bonds" / "Detailed-Quarterly-Tenancy-Q1-2020-Q3-2026.csv"
+)
+CLEANED_LISTINGS_FILE = OUTPUT_DIR / "cleaned_listings.csv"
+CLEANED_BONDS_FILE = OUTPUT_DIR / "cleaned_bonds.csv"
+
+# The date range covered by the nine Airbnb snapshots. The bond file is
+# quarterly, so bonds are kept on a quarter-overlap basis against this window.
+SNAPSHOT_START = pd.Timestamp("2025-10-05")
+SNAPSHOT_END = pd.Timestamp("2026-06-19")
+
 
 def clean_airbnb_data() -> pd.DataFrame:
     # Make sure the result from deliverable 3 exists
-    INPUT_FILE = OUTPUT_DIR / "combined_listings.csv"
+    INPUT_FILE = COMBINED_LISTINGS_FILE
     if not INPUT_FILE.exists():
         raise FileNotFoundError(
             f"{INPUT_FILE} does not exist. Did you run deliverable_3()?"
@@ -71,9 +83,8 @@ def clean_airbnb_data() -> pd.DataFrame:
 
 
 def load_bonds_data() -> pd.DataFrame:
-
     # Make sure the input data for this deliverable exists
-    BONDS_DATA = DATA_DIR / "bonds" / "Detailed-Quarterly-Tenancy-Q1-2020-Q3-2026.csv"
+    BONDS_DATA = BONDS_FILE
     if not BONDS_DATA.exists():
         raise FileNotFoundError(
             f"{BONDS_DATA} does not exist. Did you run sync_data()?"
@@ -91,8 +102,8 @@ def clean_bonds_data(bonds_df: pd.DataFrame) -> pd.DataFrame:
     # retain every quarter that overlaps this date range. This includes Q4
     # 2025, even though its start date is 1 October 2025.
 
-    start = pd.Timestamp("2025-10-05")
-    end = pd.Timestamp("2026-06-19")
+    start = SNAPSHOT_START
+    end = SNAPSHOT_END
     quarter_end = bonds_df["TimeFrame"] + pd.offsets.QuarterEnd(0)
     bonds_cleaned = bonds_df[
         (bonds_df["TimeFrame"] <= end) & (quarter_end >= start)
@@ -145,14 +156,14 @@ def clean_bonds_data(bonds_df: pd.DataFrame) -> pd.DataFrame:
 
 def main():
 
-    CLEANED_AIRBNB_OUTPUT_PATH = OUTPUT_DIR / "cleaned_listings.csv"
+    CLEANED_AIRBNB_OUTPUT_PATH = CLEANED_LISTINGS_FILE
     cleaned_airbnb_df = clean_airbnb_data()
     cleaned_airbnb_df.to_csv(CLEANED_AIRBNB_OUTPUT_PATH, index=False)
     print(
         f"➡️ [blue] Saved cleaned Airbnb data to [bold]{CLEANED_AIRBNB_OUTPUT_PATH}[/bold][/blue]"
     )
 
-    CLEANED_BONDS_OUTPUT_PATH = OUTPUT_DIR / "cleaned_bonds.csv"
+    CLEANED_BONDS_OUTPUT_PATH = CLEANED_BONDS_FILE
     bonds_df = load_bonds_data()
     cleaned_bonds_df = clean_bonds_data(bonds_df)
     cleaned_bonds_df.to_csv(CLEANED_BONDS_OUTPUT_PATH, index=False)

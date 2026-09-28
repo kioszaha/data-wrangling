@@ -84,6 +84,88 @@ def summarise_dataset(df: pd.DataFrame, exclude: list) -> pd.DataFrame:
     return summary_df
 
 
+def previous_weeks_plots_R(input_csv: str, output_pdf: str) -> None:
+
+    try:
+        from rpy2 import robjects
+
+    except ValueError as e:
+        if "r_home is None. Try python -m rpy2.situation" == str(e):
+            print(
+                "[red bold]R was not found on your system. Skipping generating plots."
+            )
+            return
+        print(
+            "[red bold]An error occured importing robjects. Skipping generating plots."
+        )
+        return
+
+    robjects.globalenv["input_csv"] = str(OUTPUT_DIR / input_csv)
+    robjects.globalenv["output_pdf"] = str(OUTPUT_DIR / output_pdf)
+
+    r_code = """
+    
+    library(dplyr)
+    library(readr)
+    library(ggplot2)
+
+    pdf(output_pdf)
+
+    dataset = read.csv(input_csv)
+
+    chch_data_one = dataset %>%
+      filter(neighbourhood_group == "Christchurch City")
+
+    print(
+      ggplot(chch_data_one, aes(x = price)) +
+        geom_histogram(binwidth = 10, colour = "white") +
+        labs(
+          title = "House Prices in Christchurch City",
+          x = "Price",
+          y = "Number of Houses"
+        ) +
+        lims(x = c(0,2000)) + theme_bw()
+    )
+
+    print(
+      ggplot(dataset, aes(x = price)) +
+        geom_histogram(binwidth = 10, colour = "white") +
+        labs(title = "House Prices in New Zealand", x = "Price", y = "Number of Houses") +
+        lims(x = c(0,2000)) + theme_bw()
+    )
+
+    dataset$last_review <- as.Date(dataset$last_review, format = "%Y-%m-%d")
+    dataset$days_since_june19 <- as.Date(paste(dataset$published_year, dataset$published_month, "01", sep="-")) - dataset$last_review
+    dataset$days_since_june19 <- as.numeric(dataset$days_since_june19)
+
+    print(
+      ggplot(dataset, aes(x = days_since_june19)) +
+        geom_histogram(colour = "white", binwidth = 25) +
+        labs(
+          title = "Difference Between Last Review and Publish Date in Days",
+          x = "Days", y = "Count"
+        ) +
+        lims(x = c(0, 1000)) + theme_bw()
+    )
+
+    threshold <- quantile(dataset$number_of_reviews, 0.9, na.rm = TRUE)
+
+    top_10 <- dataset %>%
+      filter(number_of_reviews >= threshold)
+
+    count_top10_chch <- top_10 %>%
+      filter(neighbourhood_group == "Christchurch City") %>%
+      nrow()
+
+    plot.new()
+    text(0.5, 0.6, "Number of Top 10% Properties in Christchurch New Zealand", cex = 1.1)
+    text(0.5, 0.4, count_top10_chch, cex = 2.5)
+
+    dev.off()
+    """
+    robjects.r(r_code)
+
+
 def main():
     # Obtain the AirbnbListings object
     airbnb_listings = file_explorer("airbnb")
@@ -125,3 +207,7 @@ def main():
     print(
         f"➡️ [blue] Saved combined dataset to [bold]{combined_dataset_output_path}[/bold][/blue]"
     )
+
+    # Task 8: Reproduce workflow and plots from last weeks no code software
+
+    previous_weeks_plots_R("combined_listings.csv", "test_combined_listings_graphs.pdf")

@@ -1,7 +1,7 @@
 # Locally cloned data that we don't want clogging up GitHub
 .data
 .output
-
+.kilo
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[codz]
