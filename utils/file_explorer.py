@@ -1,3 +1,11 @@
+"""
+Discover and wrap the raw data files that live in .data/.
+
+Nothing here writes to disk: an AirbnbListing owns the dataframe parsed from
+its own .csv, and the helpers in this module decide which file answers a given
+query. Deliverables read the result and write to .output/ instead.
+"""
+
 import datetime
 import re
 from dataclasses import dataclass, field

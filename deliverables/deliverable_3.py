@@ -90,7 +90,6 @@ def previous_weeks_plots_R(input_csv: str, output_pdf: str) -> None:
         from rpy2 import robjects
 
     except ValueError as e:
-        print(e)
         if "r_home is None. Try python -m rpy2.situation" == str(e):
             print(
                 "[red bold]R was not found on your system. Skipping generating plots."
@@ -99,6 +98,7 @@ def previous_weeks_plots_R(input_csv: str, output_pdf: str) -> None:
         print(
             "[red bold]An error occured importing robjects. Skipping generating plots."
         )
+        return
 
     robjects.globalenv["input_csv"] = str(OUTPUT_DIR / input_csv)
     robjects.globalenv["output_pdf"] = str(OUTPUT_DIR / output_pdf)

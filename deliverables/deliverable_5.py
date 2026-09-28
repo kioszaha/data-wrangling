@@ -38,6 +38,10 @@ AREA_FIELD = "SA22019_V1_00"
 API_URL = "https://koordinates.com/services/query/v1/vector.json"
 MIN_LISTINGS = 10  # ignore tiny areas when ranking the price gap
 CHRISTCHURCH_CENTRAL_AREA_CODE = 326600
+MAX_MISSING_RATIO = 0.05  # abort geocoding if more than this share stays unresolved
+MAX_ATTEMPTS = 3  # retries per coordinate, so a rate-limit blip doesn't leave a hole
+GEOCODE_WORKERS = 8  # parallel lookups; the API is the bottleneck, not the CPU
+NIGHTS_PER_WEEK = 7  # converts the weekly Median Rent to a comparable nightly rate
 
 
 # ---------------------------------------------------------------- area codes
@@ -60,7 +64,7 @@ def get_area_code(coords: tuple[float, float]) -> str | None:
         "geometry": "false",
         "with_field_names": "true",
     }
-    for attempt in range(3):  # retry so a rate-limit blip doesn't leave a hole
+    for attempt in range(MAX_ATTEMPTS):
         try:
             response = requests.get(API_URL, params=params, timeout=10)
             response.raise_for_status()
@@ -138,7 +142,7 @@ def fetch_coodinates(input_file: Path, output_file: Path) -> None:
                 total=len(coord_list),
             )
 
-            with Pool(processes=8) as pool:
+            with Pool(processes=GEOCODE_WORKERS) as pool:
                 for result in pool.imap(get_area_code, coord_list, chunksize=20):
                     new_codes.append(result)
                     progress.update(task, advance=1)
@@ -165,10 +169,10 @@ def fetch_coodinates(input_file: Path, output_file: Path) -> None:
 
     missing = df["area_code"].isna().sum()
     print(f"[green]Missing area codes: {missing} ({missing / len(df):.2%})")
-    if missing / len(df) > 0.05:
+    if missing / len(df) > MAX_MISSING_RATIO:
         # Don't cache a bad run: an invalid key or rate limiting gives mostly blanks
         raise RuntimeError(
-            "Over 5% of area codes are missing - check the API key "
+            f"Over {MAX_MISSING_RATIO:.0%} of area codes are missing - check the API key "
             "and rate limits, then rerun. Nothing was saved."
         )
 
@@ -292,7 +296,7 @@ def biggest_rental_gap(
     joined = pd.read_csv(joined_file)
 
     # Convert weekly median rent to a nightly rate for a fair comparison
-    joined["long_term_daily_rate"] = joined["Median Rent"] / 7
+    joined["long_term_daily_rate"] = joined["Median Rent"] / NIGHTS_PER_WEEK
     joined["price_gap"] = joined["price"] - joined["long_term_daily_rate"]
 
     gap_by_area = (
@@ -481,12 +485,12 @@ def sqlite_join(
 
     # SQLite has no MEDIAN(), so take the middle row(s) of the sorted prices
     median = pd.read_sql_query(
-        """
+        f"""
         SELECT AVG(price) AS median_price FROM (
-            SELECT price FROM listings WHERE area_code = 326600
+            SELECT price FROM listings WHERE area_code = {CHRISTCHURCH_CENTRAL_AREA_CODE}
             ORDER BY price
-            LIMIT 2 - (SELECT COUNT(*) FROM listings WHERE area_code = 326600) % 2
-            OFFSET (SELECT (COUNT(*) - 1) / 2 FROM listings WHERE area_code = 326600)
+            LIMIT 2 - (SELECT COUNT(*) FROM listings WHERE area_code = {CHRISTCHURCH_CENTRAL_AREA_CODE}) % 2
+            OFFSET (SELECT (COUNT(*) - 1) / 2 FROM listings WHERE area_code = {CHRISTCHURCH_CENTRAL_AREA_CODE})
         )
     """,
         con,
