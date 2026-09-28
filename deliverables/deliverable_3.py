@@ -105,7 +105,7 @@ def previous_weeks_plots_R(input_csv: str, output_pdf: str) -> None:
             )
             return
         print(
-            "[red bold]An error occured importing robjects. Skipping generating plots."
+            "[red bold]An error occurred importing robjects. Skipping generating plots."
         )
         return
 
@@ -175,7 +175,7 @@ def previous_weeks_plots_R(input_csv: str, output_pdf: str) -> None:
     robjects.r(r_code)
 
 
-def main():
+def main() -> None:
     # Obtain the AirbnbListings object
     airbnb_listings = file_explorer("airbnb")
 

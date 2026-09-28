@@ -19,7 +19,6 @@ matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 import pandas as pd
 import requests
-from dotenv import load_dotenv
 from rich import print
 from rich.progress import (
     BarColumn,
@@ -31,7 +30,6 @@ from rich.progress import (
 
 from config import DATA_DIR, OUTPUT_DIR
 
-load_dotenv()  # so the key is found even when this file is run on its own
 API_KEY = os.environ.get("KOORDINATES_API_KEY")
 LAYER_ID = 98970
 AREA_FIELD = "SA22019_V1_00"
@@ -505,6 +503,7 @@ def sqlite_join(
 
 def main() -> None:
     """Run the complete deliverable-5 data preparation and analysis pipeline."""
+
     cleaned_listings_with_area_code_file = (
         OUTPUT_DIR / "cleaned_listings_with_area_code.csv"
     )

@@ -154,7 +154,7 @@ def clean_bonds_data(bonds_df: pd.DataFrame) -> pd.DataFrame:
     return bonds_cleaned
 
 
-def main():
+def main() -> None:
 
     CLEANED_AIRBNB_OUTPUT_PATH = CLEANED_LISTINGS_FILE
     cleaned_airbnb_df = clean_airbnb_data()

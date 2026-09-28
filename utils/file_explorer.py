@@ -18,7 +18,7 @@ from config import DATA_DIR
 
 @dataclass
 class AirbnbListing:
-    """An induvidual Airbnb listing object
+    """An individual Airbnb listing object
 
     Attributes:
         path (Path): Storage location of the original .csv file
@@ -30,7 +30,7 @@ class AirbnbListing:
     date: datetime.date
     dataframe: pd.DataFrame | None = field(default=None, init=False)
 
-    def load(self, force=False) -> pd.DataFrame:
+    def load(self, force: bool = False) -> pd.DataFrame:
         """Load the .csv path as a Pandas Dataframe
 
         Args:
@@ -55,6 +55,7 @@ class AirbnbListing:
         """Loads the dataframe if necessary, then mutates the DataFrame
         in place to add month and year columns based on the publish date of the dataset"""
         self.load()
+        self.dataframe["published_date"] = self.date
         self.dataframe["published_month"] = self.date.month
         self.dataframe["published_year"] = self.date.year
 
@@ -64,7 +65,7 @@ class AirbnbListings:
 
     _FILENAME_RE = re.compile(r"listings_(\d{8})\.csv")
 
-    def __init__(self, airbnb_dir: Path):
+    def __init__(self, airbnb_dir: Path) -> None:
         """Create a Listings object
 
         Args:
@@ -120,7 +121,7 @@ class AirbnbListings:
 
 
 def _airbnb_listings() -> AirbnbListings:
-    """Utility funciton that builds the AirbnbListings object
+    """Utility function that builds the AirbnbListings object
 
     Raises:
         FileNotFoundError: Where there is no Airbnb directory, can be fixed by running sync_data() online
