@@ -243,9 +243,10 @@ Run order: main()  ->  join_datasets()  ->  the four analysis functions.
 ```
 
 `deliverable_4.py` and `sync_data.py` do the same, the latter also recording its author.
-`main.py`, `config.py` and `file_explorer.py` were added in this pass for consistency — the
-practice is only worth following if it is universal, and a reader landing in `config.py` should
-immediately learn that it exists to make every other path in the project portable.
+`main.py`, `config.py`, `file_explorer.py` and `deliverable_3.py` were added in later passes
+for consistency — the practice is only worth following if it is universal, and a reader landing
+in `config.py` should immediately learn that it exists to make every other path in the project
+portable. All seven modules in the project now carry one.
 
 ### Code is self-documenting
 

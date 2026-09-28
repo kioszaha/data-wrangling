@@ -16,7 +16,7 @@ from utils.sync_data import sync_data
 dotenv.load_dotenv()
 
 
-def main():
+def main() -> None:
     # Load all listings.csv
     sync_data()
 
