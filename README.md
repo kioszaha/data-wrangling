@@ -74,10 +74,21 @@ Run the complete reproducible pipeline with:
 uv run main.py
 ```
 
+### Updating with new Airbnb months
+
+`uv run main.py` is all that's needed to bring the results up to date:
+
+1. Get the new `listings.csv` from [Inside Airbnb](https://insideairbnb.com/get-the-data/), not the `.csv.gz`.
+   Don't open it in Excel, as that corrupts the IDs and dates.
+2. Upload it to the team CDN (or save it in the airbnb data folder) named by snapshot date, for example `listings_20260813.csv`.
+3. Run `uv run main.py`. New files are synced, every month found is combined, and the plots, cleaned datasets, joins and analysis answers are regenerated.
+
+Re-runs are fast because area codes that were already looked up are cached. Only new coordinates are sent to the Koordinates API.
+
 In order to run the entirety of deliverable 5, the KOORDINATES_API_KEY environment variable is required.
 
 This can be obtained from [Koordinates](https://koordinates.com/my/api/) and added to your .env file (it will be automatically read).
 
-Deliverable 3 re-runs last week's R plots through `rpy2`, so those plots are only written when a
-working R installation is available. Without R that one step logs that it is skipping and the
-rest of the pipeline continues.
+Deliverable 3 re-runs last week's R plots by calling `Rscript` as a separate process, so `Rscript`
+must be on your PATH for the plots PDF to be written. Without it, that one step logs that it is
+skipping and the rest of the pipeline continues. A plotting failure never stops the pipeline.

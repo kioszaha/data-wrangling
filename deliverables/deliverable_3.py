@@ -1,4 +1,6 @@
 import pandas as pd
+import shutil
+import subprocess
 from rich import print
 
 from config import OUTPUT_DIR
@@ -84,86 +86,93 @@ def summarise_dataset(df: pd.DataFrame, exclude: list) -> pd.DataFrame:
     return summary_df
 
 
+R_PLOT_CODE = """
+library(dplyr)
+library(readr)
+library(ggplot2)
+
+pdf(output_pdf)
+
+dataset = read.csv(input_csv)
+
+chch_data_one = dataset %>%
+  filter(neighbourhood_group == "Christchurch City")
+
+print(
+  ggplot(chch_data_one, aes(x = price)) +
+    geom_histogram(binwidth = 10, colour = "white") +
+    labs(
+      title = "House Prices in Christchurch City",
+      x = "Price",
+      y = "Number of Houses"
+    ) +
+    lims(x = c(0,2000)) + theme_bw()
+)
+
+print(
+  ggplot(dataset, aes(x = price)) +
+    geom_histogram(binwidth = 10, colour = "white") +
+    labs(title = "House Prices in New Zealand", x = "Price", y = "Number of Houses") +
+    lims(x = c(0,2000)) + theme_bw()
+)
+
+dataset$last_review <- as.Date(dataset$last_review, format = "%Y-%m-%d")
+dataset$days_since_june19 <- as.Date(paste(dataset$published_year, dataset$published_month, "01", sep="-")) - dataset$last_review
+dataset$days_since_june19 <- as.numeric(dataset$days_since_june19)
+
+print(
+  ggplot(dataset, aes(x = days_since_june19)) +
+    geom_histogram(colour = "white", binwidth = 25) +
+    labs(
+      title = "Difference Between Last Review and Publish Date in Days",
+      x = "Days", y = "Count"
+    ) +
+    lims(x = c(0, 1000)) + theme_bw()
+)
+
+threshold <- quantile(dataset$number_of_reviews, 0.9, na.rm = TRUE)
+
+top_10 <- dataset %>%
+  filter(number_of_reviews >= threshold)
+
+count_top10_chch <- top_10 %>%
+  filter(neighbourhood_group == "Christchurch City") %>%
+  nrow()
+
+plot.new()
+text(0.5, 0.6, "Number of Top 10% Properties in Christchurch New Zealand", cex = 1.1)
+text(0.5, 0.4, count_top10_chch, cex = 2.5)
+
+dev.off()
+"""
+
+
 def previous_weeks_plots_R(input_csv: str, output_pdf: str) -> None:
-
-    try:
-        from rpy2 import robjects
-
-    except ValueError as e:
-        if "r_home is None. Try python -m rpy2.situation" == str(e):
-            print(
-                "[red bold]R was not found on your system. Skipping generating plots."
-            )
-            return
-        print(
-            "[red bold]An error occured importing robjects. Skipping generating plots."
-        )
+    rscript = shutil.which("Rscript") or r"C:\Program Files (x86)\R\R-4.6.1\bin\x64\Rscript.exe"
+    if rscript is None:
+        print("[red bold]Rscript not found. Skipping generating plots.")
         return
 
-    robjects.globalenv["input_csv"] = str(OUTPUT_DIR / input_csv)
-    robjects.globalenv["output_pdf"] = str(OUTPUT_DIR / output_pdf)
-
-    r_code = """
-    
-    library(dplyr)
-    library(readr)
-    library(ggplot2)
-
-    pdf(output_pdf)
-
-    dataset = read.csv(input_csv)
-
-    chch_data_one = dataset %>%
-      filter(neighbourhood_group == "Christchurch City")
-
-    print(
-      ggplot(chch_data_one, aes(x = price)) +
-        geom_histogram(binwidth = 10, colour = "white") +
-        labs(
-          title = "House Prices in Christchurch City",
-          x = "Price",
-          y = "Number of Houses"
-        ) +
-        lims(x = c(0,2000)) + theme_bw()
+    header = (
+        f'input_csv <- "{(OUTPUT_DIR / input_csv).as_posix()}"\n'
+        f'output_pdf <- "{(OUTPUT_DIR / output_pdf).as_posix()}"\n'
     )
+    script = OUTPUT_DIR / "plots.R"
+    script.write_text(header + R_PLOT_CODE)
+    pdf_path = OUTPUT_DIR / output_pdf
+    pdf_path.unlink(missing_ok=True)  # so an old PDF can't hide a failure
 
-    print(
-      ggplot(dataset, aes(x = price)) +
-        geom_histogram(binwidth = 10, colour = "white") +
-        labs(title = "House Prices in New Zealand", x = "Price", y = "Number of Houses") +
-        lims(x = c(0,2000)) + theme_bw()
-    )
+    result = subprocess.run([rscript, str(script)])
 
-    dataset$last_review <- as.Date(dataset$last_review, format = "%Y-%m-%d")
-    dataset$days_since_june19 <- as.Date(paste(dataset$published_year, dataset$published_month, "01", sep="-")) - dataset$last_review
-    dataset$days_since_june19 <- as.numeric(dataset$days_since_june19)
-
-    print(
-      ggplot(dataset, aes(x = days_since_june19)) +
-        geom_histogram(colour = "white", binwidth = 25) +
-        labs(
-          title = "Difference Between Last Review and Publish Date in Days",
-          x = "Days", y = "Count"
-        ) +
-        lims(x = c(0, 1000)) + theme_bw()
-    )
-
-    threshold <- quantile(dataset$number_of_reviews, 0.9, na.rm = TRUE)
-
-    top_10 <- dataset %>%
-      filter(number_of_reviews >= threshold)
-
-    count_top10_chch <- top_10 %>%
-      filter(neighbourhood_group == "Christchurch City") %>%
-      nrow()
-
-    plot.new()
-    text(0.5, 0.6, "Number of Top 10% Properties in Christchurch New Zealand", cex = 1.1)
-    text(0.5, 0.4, count_top10_chch, cex = 2.5)
-
-    dev.off()
-    """
-    robjects.r(r_code)
+    if not pdf_path.exists() or pdf_path.stat().st_size == 0:
+        raise RuntimeError(
+            f"R exited with status {result.returncode} and produced no PDF"
+        )
+    if result.returncode != 0:
+        print(
+            f"[yellow]R exited with status {result.returncode} after writing "
+            "the PDF. The plots were still created."
+        )
 
 
 def main():
@@ -210,4 +219,9 @@ def main():
 
     # Task 8: Reproduce workflow and plots from last weeks no code software
 
-    previous_weeks_plots_R("combined_listings.csv", "test_combined_listings_graphs.pdf")
+    try:
+        previous_weeks_plots_R(
+            "combined_listings.csv", "test_combined_listings_graphs.pdf"
+        )
+    except Exception as e:
+        print(f"[red bold]Plot generation failed: {e}. Continuing.")
