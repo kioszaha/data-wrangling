@@ -39,7 +39,7 @@ All outputs land in `.output/`, also git-ignored. The directory rebuilds complet
 | `test_combined_listings_graphs.pdf` | Deliverable 3 | The four plots reproduced from last week's R Markdown workflow. **Conditional:** only written when Rscript is found on the PATH", otherwise the step logs that it is skipping. |
 | `cleaned_listings.csv` | Deliverable 4 | The above, cleaned. 24,469 rows × 17 columns. |
 | `cleaned_bonds.csv` | Deliverable 4 | Bond rows for quarters overlapping the snapshot window, plus a derived numeric `beds_num`. 27,118 rows × 13 columns. |
-| `cleaned_listings_with_area_code.csv` | Deliverable 5 | Cleaned listings with an SA2 2019 `area_code` geocoded from latitude/longitude. 24,469 rows, 177 distinct areas, 0 unresolved. Doubles as the **geocoding cache**. |
+| `cleaned_listings_with_area_code.csv` | Deliverable 5 | Cleaned listings with an SA2 2019 `area_code` geocoded from latitude/longitude. 24,469 rows, 190 distinct areas, 0 unresolved. Doubles as the **geocoding cache**. |
 | `joined_listings_bonds.csv` | Deliverable 5 | Inner join of listings and bonds on area code + quarter. 13,852 rows; the 10,617 unmatched listings (43.4%) are in areas or quarters the bond file has no record for. |
 | `gap_by_area.csv` / `.png` | Deliverable 5 | Short-term vs long-term nightly price gap per area, and a box plot of the top 10. The CSV is the authoritative ranking: the plot trims the most extreme 1% at each end for legibility, which shifts a box's drawn median slightly away from the `median_gap` it was ranked on. |
 | `counts_by_area.csv` / `.png` | Deliverable 5 | Average Airbnb listings vs active long-term rentals per area, and a paired bar chart. |
@@ -341,7 +341,7 @@ overstatements of how well the pipeline was doing:
   unmatched, not 14.7%. The SQL cross-check still agreed with pandas, so the *code* was right
   and the *document* was stale — which is exactly the failure mode this document exists to
   prevent, and a reason to re-run before editing rather than edit from memory.
-- Geocoding resolves 177 distinct areas, not 170.
+- Geocoding resolves 190 distinct areas, not 170.
 - The SA2 2026 dictionary has 2,396 entries, not 2,395.
 - The 2019-versus-2026 vintage mismatch was documented as a known gap. It is not one: every one
   of the 177 codes produced is present in the dictionary. A speculative caveat reads exactly
