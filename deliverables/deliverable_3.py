@@ -1,6 +1,4 @@
 import pandas as pd
-import shutil
-import subprocess
 from rich import print
 
 from config import OUTPUT_DIR
@@ -148,32 +146,24 @@ dev.off()
 
 
 def previous_weeks_plots_R(input_csv: str, output_pdf: str) -> None:
-    rscript = shutil.which("Rscript") or r"C:\Program Files (x86)\R\R-4.6.1\bin\x64\Rscript.exe"
-    if rscript is None:
-        print("[red bold]Rscript not found. Skipping generating plots.")
+    try:
+        from rpy2 import robjects
+
+    except ValueError as e:
+        if "r_home is None. Try python -m rpy2.situation" == str(e):
+            print(
+                "[red bold]R was not found on your system. Skipping generating plots."
+            )
+            return
+        print(
+            "[red bold]An error occured importing robjects. Skipping generating plots."
+        )
         return
 
-    header = (
-        f'input_csv <- "{(OUTPUT_DIR / input_csv).as_posix()}"\n'
-        f'output_pdf <- "{(OUTPUT_DIR / output_pdf).as_posix()}"\n'
-    )
-    script = OUTPUT_DIR / "plots.R"
-    script.write_text(header + R_PLOT_CODE)
-    pdf_path = OUTPUT_DIR / output_pdf
-    pdf_path.unlink(missing_ok=True)  # so an old PDF can't hide a failure
+    robjects.globalenv["input_csv"] = str(OUTPUT_DIR / input_csv)
+    robjects.globalenv["output_pdf"] = str(OUTPUT_DIR / output_pdf)
 
-    result = subprocess.run([rscript, str(script)])
-
-    if not pdf_path.exists() or pdf_path.stat().st_size == 0:
-        raise RuntimeError(
-            f"R exited with status {result.returncode} and produced no PDF"
-        )
-    if result.returncode != 0:
-        print(
-            f"[yellow]R exited with status {result.returncode} after writing "
-            "the PDF. The plots were still created."
-        )
-
+    robjects.r(R_PLOT_CODE)
 
 def main():
     # Obtain the AirbnbListings object

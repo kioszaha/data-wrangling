@@ -61,7 +61,7 @@ median from both pandas and SQLite.
 
 ## Further Cleanups
 
-Integrated the deliverable 3 workflow and plots that were originally built in RStudio as an R Markdown file into the Python pipeline using the rpy2 package. The subsequent graphs now correctly appear in the output folder. This was later changed to call `Rscript` as a separate process instead of `rpy2`, because `rpy2` failed to load R on machines where the Python and R builds differ in architecture (e.g. x64 Python with ARM64 R). The plots step now also treats "PDF was written" as success and never stops the rest of the pipeline.
+Integrated the deliverable 3 workflow and plots that were originally built in RStudio as an R Markdown file into the Python pipeline using the rpy2 package. The subsequent graphs now correctly appear in the output folder.
 
 ## Second review pass (revisiting the code against the lectures)
 

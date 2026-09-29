@@ -36,7 +36,7 @@ All outputs land in `.output/`, also git-ignored. The directory rebuilds complet
 | --- | --- | --- |
 | `combined_listings.csv` | Deliverable 3 | All monthly snapshots filtered to Christchurch City and concatenated, with `published_month` / `published_year` added. 35,796 rows × 20 columns. |
 | `summary.md` | Deliverable 3 | Per-column summary statistics and missing-value counts, as a Markdown table. |
-| `test_combined_listings_graphs.pdf` | Deliverable 3 | The four plots reproduced from last week's R Markdown workflow. **Conditional:** only written when Rscript is found on the PATH", otherwise the step logs that it is skipping. |
+| | `test_combined_listings_graphs.pdf` | Deliverable 3 | The four plots reproduced from last week's R Markdown workflow. **Conditional:** only written when a working R installation is detectable, otherwise the step logs that it is skipping. | |
 | `cleaned_listings.csv` | Deliverable 4 | The above, cleaned. 24,469 rows × 17 columns. |
 | `cleaned_bonds.csv` | Deliverable 4 | Bond rows for quarters overlapping the snapshot window, plus a derived numeric `beds_num`. 27,118 rows × 13 columns. |
 | `cleaned_listings_with_area_code.csv` | Deliverable 5 | Cleaned listings with an SA2 2019 `area_code` geocoded from latitude/longitude. 24,469 rows, 190 distinct areas, 0 unresolved. Doubles as the **geocoding cache**. |
@@ -78,17 +78,14 @@ Turns the monthly listings files (Oct 2025 to Aug 2026, eleven months) into one 
 1. Find every `listings_YYYYMMDD.csv` and read the snapshot date from its filename.
 2. Keep only rows where `neighbourhood_group` is `"Christchurch City"`.
 3. Add `published_month` and `published_year` from the snapshot date.
-4. CConcatenate all months found into `combined_listings.csv` (currently eleven months,
+4. Concatenate all months found into `combined_listings.csv` (currently eleven months,
    35,796 rows).
 5. Write `summary.md` — per-column statistics, chosen by column type: dates get min/max/mean,
    numbers also get standard deviation, and text columns get their unique count and three
    most common values.
-6. Re-run last week's R plots over the combined file by calling `Rscript` as a separate
-   process (Task 8 of the brief). This is the one step with an external runtime dependency:
-   if `Rscript` is not on the PATH, the step says so and returns. If R runs but produces no
-   PDF, the failure is reported and caught. Success is judged by whether the plots PDF was
-   written, not by R's exit code, since some Windows R builds crash on shutdown after
-   writing the PDF. In every case the rest of the pipeline continues unaffected.
+6. Re-run last week's R plots over the combined file via `rpy2` (Task 8 of the brief). This is
+   the one step with an external runtime dependency: if R is not installed the import fails,
+   the step says so and returns, and the rest of the pipeline continues unaffected.
 
 IDs and coordinates are left out of the summary, since an average `host_id` or latitude means
 nothing.

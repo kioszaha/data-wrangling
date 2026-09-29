@@ -89,6 +89,6 @@ In order to run the entirety of deliverable 5, the KOORDINATES_API_KEY environme
 
 This can be obtained from [Koordinates](https://koordinates.com/my/api/) and added to your .env file (it will be automatically read).
 
-Deliverable 3 re-runs last week's R plots by calling `Rscript` as a separate process, so `Rscript`
-must be on your PATH for the plots PDF to be written. Without it, that one step logs that it is
-skipping and the rest of the pipeline continues. A plotting failure never stops the pipeline.
+   Deliverable 3 re-runs last week's R plots through `rpy2`, so those plots are only written when a
+   working R installation is available. Without R that one step logs that it is skipping and the
+   rest of the pipeline continues.
