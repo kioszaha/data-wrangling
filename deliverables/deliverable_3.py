@@ -12,8 +12,12 @@ from typing import Any
 import pandas as pd
 from rich import print
 
-from config import OUTPUT_DIR
-from deliverables.deliverable_4 import COMBINED_LISTINGS_FILE
+from config import (
+    COMBINED_LISTINGS_FILE,
+    OUTPUT_DIR,
+    PREVIOUS_WEEKS_PLOTS_PDF,
+    SUMMARY_FILE,
+)
 from utils.file_explorer import AirbnbListings, file_explorer
 
 
@@ -210,9 +214,8 @@ def main() -> None:
             "latitude",
         ],
     )
-    summary_output_path = OUTPUT_DIR / "summary.md"
-    summary_df.to_markdown(summary_output_path)
-    print(f"➡️ [blue] Saved summary to [bold]{summary_output_path}[/bold][/blue]")
+    summary_df.to_markdown(SUMMARY_FILE)
+    print(f"➡️ [blue] Saved summary to [bold]{SUMMARY_FILE}[/bold][/blue]")
 
     # Task 7: Store the concatenated dataset in a new file
     combined_dataset.to_csv(COMBINED_LISTINGS_FILE, index=False)
@@ -222,4 +225,4 @@ def main() -> None:
 
     # Task 8: Reproduce workflow and plots from last weeks no code software
 
-    previous_weeks_plots_R("combined_listings.csv", "test_combined_listings_graphs.pdf")
+    previous_weeks_plots_R(COMBINED_LISTINGS_FILE.name, PREVIOUS_WEEKS_PLOTS_PDF.name)
