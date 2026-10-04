@@ -8,10 +8,12 @@ query. Deliverables read the result and write to .output/ instead.
 
 import datetime
 import re
+import sys
 from dataclasses import dataclass, field
 from pathlib import Path
 
 import pandas as pd
+import questionary
 
 from config import DATA_DIR
 
@@ -91,6 +93,7 @@ class AirbnbListings:
             listings.append(AirbnbListing(path=listing_path, date=date))
             self._month_map[date.month] = i
 
+        self.all_listings = listings
         self.listings = listings
 
     def filter_christchurch_all(self) -> None:
@@ -106,6 +109,9 @@ class AirbnbListings:
     def by_month(self, month: int, load: bool = True) -> AirbnbListing:
         """Load a listings.csv file as a Pandas dataframe by the numerical month of the data
 
+        Month lookups always resolve against the full set of discovered files,
+        independent of any range selected by the user.
+
         Args:
             month (int): Month as a number, e.g 7 = July
             load (bool, optional): Calls listing.load() if unloaded. Defaults to True.
@@ -116,11 +122,51 @@ class AirbnbListings:
         if month not in self._month_map:
             raise ValueError(f"There is no listings file matching the month: {month}")
 
-        requested_listing = self.listings[self._month_map[month]]
+        requested_listing = self.all_listings[self._month_map[month]]
         if load:
             requested_listing.load()
 
         return requested_listing
+
+
+def select_range(listings: AirbnbListings) -> AirbnbListings:
+    """Prompt the user to pick the first and last snapshot included in the analysis.
+
+    Defaults to the first and last available file. Only runs in an interactive
+    terminal; otherwise the full range is used unchanged.
+
+    Args:
+        listings (AirbnbListings): The full set of discovered listings
+
+    Returns:
+        AirbnbListings: The same object, narrowed to the selected range
+    """
+    if len(listings.listings) < 2 or not sys.stdin.isatty():
+        return listings
+
+    options = [listing.path.name for listing in listings.listings]
+
+    start = questionary.select(
+        "First listings file to include:",
+        choices=options,
+        default=options[0],
+    ).ask()
+    if start is None:
+        raise KeyboardInterrupt
+
+    end = questionary.select(
+        "Last listings file to include:",
+        choices=options[options.index(start) :],
+        default=options[-1],
+    ).ask()
+    if end is None:
+        raise KeyboardInterrupt
+
+    lo = options.index(start)
+    hi = lo + options[lo:].index(end)
+
+    listings.listings = listings.listings[lo : hi + 1]
+    return listings
 
 
 def _airbnb_listings() -> AirbnbListings:
@@ -137,7 +183,7 @@ def _airbnb_listings() -> AirbnbListings:
         raise FileNotFoundError(
             f"Directory not found: {airbnb_dir}\n Did you run sync_data()?"
         )
-    return AirbnbListings(airbnb_dir)
+    return select_range(AirbnbListings(airbnb_dir))
 
 
 def file_explorer(dataset: str) -> AirbnbListings:

@@ -27,6 +27,9 @@ SA2_DICTIONARY_FILE = DATA_DIR / "sa2_2026_dictionary.json"
 
 # Deliverable 3
 SUMMARY_FILE = OUTPUT_DIR / "summary.md"
+CHCH_PRICE_PLOT = OUTPUT_DIR / "chch_price_plot.png"
+NZ_PRICE_PLOT = OUTPUT_DIR / "nz_price_plot.png"
+REVIEW_PLOT = OUTPUT_DIR / "days_since_review_plot.png"
 PREVIOUS_WEEKS_PLOTS_PDF = OUTPUT_DIR / "test_combined_listings_graphs.pdf"
 
 # Deliverable 5

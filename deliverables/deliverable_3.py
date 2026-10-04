@@ -8,18 +8,17 @@ runtime dependency. See docs/design_principles.md for what this stage does.
 """
 
 from pathlib import Path
-import numpy as np
-import pandas as pd
-import matplotlib.pyplot as plt
 from typing import Any
 
+import matplotlib.pyplot as plt
 import pandas as pd
 from rich import print
 
 from config import (
+    CHCH_PRICE_PLOT,
     COMBINED_LISTINGS_FILE,
-    OUTPUT_DIR,
-    PREVIOUS_WEEKS_PLOTS_PDF,
+    NZ_PRICE_PLOT,
+    REVIEW_PLOT,
     SUMMARY_FILE,
 )
 from utils.file_explorer import AirbnbListings, file_explorer
@@ -103,36 +102,44 @@ def summarise_dataset(df: pd.DataFrame, exclude: list) -> pd.DataFrame:
 
     return summary_df
 
-def previous_weeks_plots(Input):
 
-    df = pd.read_csv(Input)
+def previous_weeks_plots(input_file: Path) -> None:
+
+    if not input_file.exists():
+        raise FileNotFoundError(
+            f"{COMBINED_LISTINGS_FILE} does not exist. Did you run deliverable_3()?"
+        )
+
+    df = pd.read_csv(input_file)
     chch = df[df["neighbourhood_group"] == "Christchurch City"]
 
-    OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
-
     chch["price"].plot(
-    kind="hist", 
-    bins=range(0, 2010, 10),
-    title="House Prices in Christchurch City",
-    xlabel="Price",
-    ylabel="Number of Houses")
+        kind="hist",
+        bins=range(0, 2010, 10),
+        title="House Prices in Christchurch City",
+        xlabel="Price",
+        ylabel="Number of Houses",
+    )
 
-    chch_plot = OUTPUT_DIR / "chch_price_plot.png"
+    chch_plot = CHCH_PRICE_PLOT
     plt.savefig(chch_plot, dpi=300, bbox_inches="tight")
     plt.close()
 
     df["price"].plot(
-        kind="hist", 
+        kind="hist",
         bins=range(0, 2010, 10),
         title="House Prices in New Zealand",
         xlabel="Price",
-        ylabel="Number of Houses")
+        ylabel="Number of Houses",
+    )
 
-    nz_plot = OUTPUT_DIR / "nz_price_plot.png"
+    nz_plot = NZ_PRICE_PLOT
     plt.savefig(nz_plot, dpi=300, bbox_inches="tight")
     plt.close()
 
-    df["last_review"] = pd.to_datetime(df["last_review"], format="%Y-%m-%d", errors="coerce")
+    df["last_review"] = pd.to_datetime(
+        df["last_review"], format="%Y-%m-%d", errors="coerce"
+    )
     df["published_date"] = pd.to_datetime(df["published_date"], errors="coerce")
 
     df["days_since_review"] = (df["published_date"] - df["last_review"]).dt.days
@@ -143,19 +150,24 @@ def previous_weeks_plots(Input):
         title="Difference Between Last Review and Publish Date in Days",
         xlim=(0, 1000),
         xlabel="Days",
-        ylabel="Count")
+        ylabel="Count",
+    )
 
-    review_plot = OUTPUT_DIR / "days_since_review_plot.png"
+    review_plot = REVIEW_PLOT
     plt.savefig(review_plot, dpi=300, bbox_inches="tight")
     plt.close()
 
-    threshold = df['number_of_reviews'].quantile(0.9)
+    threshold = df["number_of_reviews"].quantile(0.9)
 
-    top_10 = df[df['number_of_reviews'] >= threshold]
+    top_10 = df[df["number_of_reviews"] >= threshold]
 
-    chch_top_10_count = len(top_10[top_10['neighbourhood_group'] == "Christchurch City"])
-    print("Top 10 Percent of Properties in Christchurch by Number of Reviews: ", chch_top_10_count)
-
+    chch_top_10_count = len(
+        top_10[top_10["neighbourhood_group"] == "Christchurch City"]
+    )
+    print(
+        "Top 10 Percent of Properties in Christchurch by Number of Reviews: ",
+        chch_top_10_count,
+    )
 
 
 def main() -> None:
@@ -193,12 +205,11 @@ def main() -> None:
     print(f"➡️ [blue] Saved summary to [bold]{SUMMARY_FILE}[/bold][/blue]")
 
     # Task 7: Store the concatenated dataset in a new file
-    combined_dataset_output_path = OUTPUT_DIR / "combined_listings.csv"
-    combined_dataset.to_csv(combined_dataset_output_path, index=False)
+    combined_dataset.to_csv(COMBINED_LISTINGS_FILE, index=False)
     print(
-        f"➡️ [blue] Saved combined dataset to [bold]{combined_dataset_output_path}[/bold][/blue]"
+        f"➡️ [blue] Saved combined dataset to [bold]{COMBINED_LISTINGS_FILE}[/bold][/blue]"
     )
 
     # Task 8: Reproduce workflow and plots from last weeks no code software
 
-    previous_weeks_plots_R(COMBINED_LISTINGS_FILE.name, PREVIOUS_WEEKS_PLOTS_PDF.name)
+    previous_weeks_plots(COMBINED_LISTINGS_FILE)
