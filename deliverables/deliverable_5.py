@@ -72,9 +72,8 @@ def get_area_code(coords: tuple[float, float]) -> str | None:
                 return None
             return features[0]["properties"].get(AREA_FIELD)
         except requests.RequestException as e:
-            last_error = e
             time.sleep(2**attempt)
-    print(f"[red]Error for ({lat}, {lon}): {last_error}[/red]")
+            print(f"[red]Error for ({lat}, {lon}): {e}[/red]")
     return None
 
 

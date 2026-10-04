@@ -11,6 +11,7 @@ import pandas as pd
 from rich import print
 
 from config import OUTPUT_DIR
+from deliverables.deliverable_4 import COMBINED_LISTINGS_FILE
 from utils.file_explorer import AirbnbListings, file_explorer
 
 
@@ -202,6 +203,7 @@ def main() -> None:
             "license",
             "published_month",
             "published_year",
+            "published_date",
             "longitude",
             "latitude",
         ],
@@ -211,10 +213,9 @@ def main() -> None:
     print(f"➡️ [blue] Saved summary to [bold]{summary_output_path}[/bold][/blue]")
 
     # Task 7: Store the concatenated dataset in a new file
-    combined_dataset_output_path = OUTPUT_DIR / "combined_listings.csv"
-    combined_dataset.to_csv(combined_dataset_output_path, index=False)
+    combined_dataset.to_csv(COMBINED_LISTINGS_FILE, index=False)
     print(
-        f"➡️ [blue] Saved combined dataset to [bold]{combined_dataset_output_path}[/bold][/blue]"
+        f"➡️ [blue] Saved combined dataset to [bold]{COMBINED_LISTINGS_FILE}[/bold][/blue]"
     )
 
     # Task 8: Reproduce workflow and plots from last weeks no code software

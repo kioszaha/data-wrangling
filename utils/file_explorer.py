@@ -58,6 +58,7 @@ class AirbnbListing:
         self.dataframe["published_date"] = self.date
         self.dataframe["published_month"] = self.date.month
         self.dataframe["published_year"] = self.date.year
+        self.dataframe["published_date"] = self.date
 
 
 class AirbnbListings:
