@@ -28,7 +28,19 @@ from rich.progress import (
     TimeRemainingColumn,
 )
 
-from config import DATA_DIR, OUTPUT_DIR
+from config import (
+    AIRBNB_BONDS_DB_FILE,
+    AREA_CODE_CACHE_FILE,
+    CLEANED_BONDS_FILE,
+    CLEANED_LISTINGS_FILE,
+    CLEANED_LISTINGS_WITH_AREA_CODE_FILE,
+    COUNTS_BY_AREA_CSV,
+    COUNTS_BY_AREA_PNG,
+    GAP_BY_AREA_CSV,
+    GAP_BY_AREA_PNG,
+    JOINED_LISTINGS_BONDS_FILE,
+    SA2_DICTIONARY_FILE,
+)
 
 API_KEY = os.environ.get("KOORDINATES_API_KEY")
 LAYER_ID = 98970
@@ -77,6 +89,30 @@ def get_area_code(coords: tuple[float, float]) -> str | None:
     return None
 
 
+def load_area_code_cache(cache_file: Path) -> pd.DataFrame:
+    """Load the coordinate-to-area-code lookup built by previous runs."""
+    if not cache_file.exists():
+        return pd.DataFrame(columns=["latitude", "longitude", "area_code"])
+    cache = pd.read_csv(cache_file)
+    if "area_code" not in cache.columns:
+        return pd.DataFrame(columns=["latitude", "longitude", "area_code"])
+    return (
+        cache[["latitude", "longitude", "area_code"]]
+        .dropna(subset=["area_code"])
+        .drop_duplicates()
+    )
+
+
+def save_area_code_cache(cache_file: Path, lookup: pd.DataFrame) -> None:
+    """Persist the full coordinate-to-area-code lookup for future runs.
+
+    The cache only ever grows: it is input-agnostic, so running the pipeline
+    with a different (e.g. single-month) listing file never loses the
+    coordinates resolved by earlier runs.
+    """
+    lookup.to_csv(cache_file, index=False)
+
+
 def fetch_coodinates(input_file: Path, output_file: Path) -> None:
     """Fetch missing coordinates from Koordinates and store them in a cache.
 
@@ -91,18 +127,12 @@ def fetch_coodinates(input_file: Path, output_file: Path) -> None:
         )
 
     df = pd.read_csv(input_file)
-
-    # Load existing results if the output file already exists
-    cached_lookup = pd.DataFrame(columns=["latitude", "longitude", "area_code"])
-    if output_file.exists():
-        existing_df = pd.read_csv(output_file)
-        if "area_code" in existing_df.columns:
-            # Extract valid existing latitude/longitude/area_code mappings
-            cached_lookup = (
-                existing_df[["latitude", "longitude", "area_code"]]
-                .dropna(subset=["area_code"])
-                .drop_duplicates()
-            )
+    cache_file = AREA_CODE_CACHE_FILE
+    if not cache_file.exists() and output_file.exists():
+        # One-time migration from the old cache layout, where the lookup was
+        # only stored inside the enriched listings file.
+        save_area_code_cache(cache_file, load_area_code_cache(output_file))
+    cached_lookup = load_area_code_cache(cache_file)
 
     # Find unique coordinates in input
     unique_coords = df[["latitude", "longitude"]].drop_duplicates()
@@ -174,6 +204,7 @@ def fetch_coodinates(input_file: Path, output_file: Path) -> None:
         )
 
     df["area_code"] = df["area_code"].astype("Int64")
+    save_area_code_cache(cache_file, lookup)
     df.to_csv(output_file, index=False)
     print(f"➡️ [blue]Saved enriched Airbnb data to [bold]{output_file}[/bold][/blue]")
 
@@ -288,8 +319,8 @@ def biggest_rental_gap(
 ) -> pd.DataFrame:
     """Calculate and save short-term versus long-term rental price gaps."""
     print("[bold red]Calculating short-term versus long-term rental price gaps...")
-    output_file = OUTPUT_DIR / "gap_by_area.csv"
-    plot_file = OUTPUT_DIR / "gap_by_area.png"
+    output_file = GAP_BY_AREA_CSV
+    plot_file = GAP_BY_AREA_PNG
     joined = pd.read_csv(joined_file)
 
     # Convert weekly median rent to a nightly rate for a fair comparison
@@ -342,8 +373,8 @@ def compare_property_counts(
     location_names: Mapping[int, str],
 ) -> pd.DataFrame:
     """Compare average Airbnb and active long-term rental counts by area."""
-    output_file = OUTPUT_DIR / "counts_by_area.csv"
-    plot_file = OUTPUT_DIR / "counts_by_area.png"
+    output_file = COUNTS_BY_AREA_CSV
+    plot_file = COUNTS_BY_AREA_PNG
     listings = pd.read_csv(listings_file)
     listings["TimeFrame"] = listings.apply(month_to_quarter_start, axis=1)
     bonds_all = load_bonds_all(bonds_file)
@@ -460,7 +491,7 @@ def sqlite_join(
 ) -> pd.DataFrame:
     """Store both datasets in SQLite and return their SQL join."""
     print("[bold blue]Running the SQLite join...")
-    database_file = OUTPUT_DIR / "airbnb_bonds.db"
+    database_file = AIRBNB_BONDS_DB_FILE
     listings = pd.read_csv(listings_file)
     listings["TimeFrame"] = listings.apply(month_to_quarter_start, axis=1)
     bonds_all = load_bonds_all(bonds_file)
@@ -503,16 +534,13 @@ def sqlite_join(
 def main() -> None:
     """Run the complete deliverable-5 data preparation and analysis pipeline."""
 
-    cleaned_listings_with_area_code_file = (
-        OUTPUT_DIR / "cleaned_listings_with_area_code.csv"
-    )
-    cleaned_bonds_file = OUTPUT_DIR / "cleaned_bonds.csv"
-    joined_listings_bonds_file = OUTPUT_DIR / "joined_listings_bonds.csv"
-    location_dictionary_file = DATA_DIR / "sa2_2026_dictionary.json"
-    location_names = load_location_names(location_dictionary_file)
+    cleaned_listings_with_area_code_file = CLEANED_LISTINGS_WITH_AREA_CODE_FILE
+    cleaned_bonds_file = CLEANED_BONDS_FILE
+    joined_listings_bonds_file = JOINED_LISTINGS_BONDS_FILE
+    location_names = load_location_names(SA2_DICTIONARY_FILE)
 
     fetch_coodinates(
-        OUTPUT_DIR / "cleaned_listings.csv",
+        CLEANED_LISTINGS_FILE,
         cleaned_listings_with_area_code_file,
     )
     join_datasets(

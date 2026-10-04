@@ -11,11 +11,17 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
+from typing import Any
 
 import pandas as pd
 from rich import print
 
-from config import OUTPUT_DIR
+from config import (
+    COMBINED_LISTINGS_FILE,
+    OUTPUT_DIR,
+    PREVIOUS_WEEKS_PLOTS_PDF,
+    SUMMARY_FILE,
+)
 from utils.file_explorer import AirbnbListings, file_explorer
 
 
@@ -35,7 +41,7 @@ def combine_datasets(airbnb_listings: AirbnbListings) -> pd.DataFrame:
     )
 
 
-def summarise_column(series: pd.Series) -> dict:
+def summarise_column(series: pd.Series) -> dict[str, Any]:
     """Produce summary statistics for a single column.
 
     Numeric columns report min, max, mean, and standard deviation. Non-numeric
@@ -48,7 +54,7 @@ def summarise_column(series: pd.Series) -> dict:
     Returns:
         dict: The column's summary statistics
     """
-    summary = {"missing": series.isna().sum()}
+    summary: dict[str, Any] = {"missing": int(series.isna().sum())}
 
     if pd.api.types.is_datetime64_any_dtype(series):
         summary.update(
@@ -63,10 +69,10 @@ def summarise_column(series: pd.Series) -> dict:
     ):
         summary.update(
             {
-                "min": round(series.min(), 2),
-                "max": round(series.max(), 2),
-                "mean": round(series.mean(), 2),
-                "std": round(series.std(), 2),
+                "min": round(float(series.min()), 2),
+                "max": round(float(series.max()), 2),
+                "mean": round(float(series.mean()), 2),
+                "std": round(float(series.std()), 2),
             }
         )
     else:
@@ -183,9 +189,8 @@ def main() -> None:
             "latitude",
         ],
     )
-    summary_output_path = OUTPUT_DIR / "summary.md"
-    summary_df.to_markdown(summary_output_path)
-    print(f"➡️ [blue] Saved summary to [bold]{summary_output_path}[/bold][/blue]")
+    summary_df.to_markdown(SUMMARY_FILE)
+    print(f"➡️ [blue] Saved summary to [bold]{SUMMARY_FILE}[/bold][/blue]")
 
     # Task 7: Store the concatenated dataset in a new file
     combined_dataset_output_path = OUTPUT_DIR / "combined_listings.csv"
@@ -196,4 +201,4 @@ def main() -> None:
 
     # Task 8: Reproduce workflow and plots from last weeks no code software
 
-    previous_weeks_plots(combined_dataset_output_path)
+    previous_weeks_plots_R(COMBINED_LISTINGS_FILE.name, PREVIOUS_WEEKS_PLOTS_PDF.name)
