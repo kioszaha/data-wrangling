@@ -1,3 +1,12 @@
+"""
+Combine the nine monthly Airbnb snapshots into one dataset (Deliverable 3)
+
+Reads the raw listings_YYYYMMDD.csv files from .data/ and writes combined_listings.csv
+plus a per-column summary.md to .output/. The four plots from last week's R Markdown
+workflow are reproduced at the end via rpy2, which is the one step here with an external
+runtime dependency. See docs/design_principles.md for what this stage does.
+"""
+
 import pandas as pd
 from rich import print
 
@@ -96,7 +105,7 @@ def previous_weeks_plots_R(input_csv: str, output_pdf: str) -> None:
             )
             return
         print(
-            "[red bold]An error occured importing robjects. Skipping generating plots."
+            "[red bold]An error occurred importing robjects. Skipping generating plots."
         )
         return
 
@@ -166,7 +175,7 @@ def previous_weeks_plots_R(input_csv: str, output_pdf: str) -> None:
     robjects.r(r_code)
 
 
-def main():
+def main() -> None:
     # Obtain the AirbnbListings object
     airbnb_listings = file_explorer("airbnb")
 
