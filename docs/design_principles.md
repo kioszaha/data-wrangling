@@ -34,13 +34,13 @@ All outputs land in `.output/`, also git-ignored. The directory rebuilds complet
 
 | Output | Produced by | Contents |
 | --- | --- | --- |
-| `combined_listings.csv` | Deliverable 3 | All nine snapshots filtered to Christchurch City and concatenated, with `published_month` / `published_year` added. 28,795 rows × 20 columns. |
+| `combined_listings.csv` | Deliverable 3 | All monthly snapshots filtered to Christchurch City and concatenated, with `published_month` / `published_year` added. 35,796 rows × 20 columns. |
 | `summary.md` | Deliverable 3 | Per-column summary statistics and missing-value counts, as a Markdown table. |
-| `test_combined_listings_graphs.pdf` | Deliverable 3 | The four plots reproduced from last week's R Markdown workflow. **Conditional:** only written when a working R installation is detectable, otherwise the step logs that it is skipping. |
-| `cleaned_listings.csv` | Deliverable 4 | The above, cleaned. 18,119 rows × 17 columns. |
+| | `test_combined_listings_graphs.pdf` | Deliverable 3 | The four plots reproduced from last week's R Markdown workflow. **Conditional:** only written when a working R installation is detectable, otherwise the step logs that it is skipping. | |
+| `cleaned_listings.csv` | Deliverable 4 | The above, cleaned. 24,469 rows × 17 columns. |
 | `cleaned_bonds.csv` | Deliverable 4 | Bond rows for quarters overlapping the snapshot window, plus a derived numeric `beds_num`. 27,118 rows × 13 columns. |
-| `cleaned_listings_with_area_code.csv` | Deliverable 5 | Cleaned listings with an SA2 2019 `area_code` geocoded from latitude/longitude. 18,119 rows, 177 distinct areas, 0 unresolved. Doubles as the **geocoding cache**. |
-| `joined_listings_bonds.csv` | Deliverable 5 | Inner join of listings and bonds on area code + quarter. 13,852 rows; the 4,267 unmatched listings (23.6%) are in areas or quarters the bond file has no record for. |
+| `cleaned_listings_with_area_code.csv` | Deliverable 5 | Cleaned listings with an SA2 2019 `area_code` geocoded from latitude/longitude. 24,469 rows, 190 distinct areas, 0 unresolved. Doubles as the **geocoding cache**. |
+| `joined_listings_bonds.csv` | Deliverable 5 | Inner join of listings and bonds on area code + quarter. 13,852 rows; the 10,617 unmatched listings (43.4%) are in areas or quarters the bond file has no record for. |
 | `gap_by_area.csv` / `.png` | Deliverable 5 | Short-term vs long-term nightly price gap per area, and a box plot of the top 10. The CSV is the authoritative ranking: the plot trims the most extreme 1% at each end for legibility, which shifts a box's drawn median slightly away from the `median_gap` it was ranked on. |
 | `counts_by_area.csv` / `.png` | Deliverable 5 | Average Airbnb listings vs active long-term rentals per area, and a paired bar chart. |
 | `airbnb_bonds.db` | Deliverable 5 | SQLite database holding both cleaned tables, used to reproduce the join in SQL. |
@@ -73,12 +73,13 @@ by MD5. Two safeguards:
 
 ### Step 1 — Combine the snapshots (`deliverables/deliverable_3.py`)
 
-Turns nine month files (Oct 2025 to June 2026) into one dataset:
+Turns the monthly listings files (Oct 2025 to Aug 2026, eleven months) into one dataset:
 
 1. Find every `listings_YYYYMMDD.csv` and read the snapshot date from its filename.
 2. Keep only rows where `neighbourhood_group` is `"Christchurch City"`.
 3. Add `published_month` and `published_year` from the snapshot date.
-4. Concatenate all nine into `combined_listings.csv` (28,795 rows).
+4. Concatenate all months found into `combined_listings.csv` (currently eleven months,
+   35,796 rows).
 5. Write `summary.md` — per-column statistics, chosen by column type: dates get min/max/mean,
    numbers also get standard deviation, and text columns get their unique count and three
    most common values.
@@ -94,7 +95,7 @@ nothing.
 Each dataset is cleaned separately, and every filter prints how many rows it removed and what
 percentage that was.
 
-**Airbnb** (28,795 → 18,119 rows):
+**Airbnb** (35,796 → 24,469 rows):
 
 - Drop three columns: `neighbourhood_group` (always the same value), `license` (entirely
   empty) and `host_name` (`host_id` already identifies the host).
@@ -169,7 +170,7 @@ data-wrangling/
 └── deliverables/   ← analysis, one module per deliverable
 ```
 
-Each input also lives in its own subdirectory by source — `.data/airbnb/` holds the nine
+Each input also lives in its own subdirectory by source — `.data/airbnb/` holds the eleven
 monthly snapshots, `.data/bonds/` the tenancy file — so `AirbnbListings` can discover every
 snapshot with a single `rglob("*.csv")` without tripping over unrelated files.
 
@@ -243,9 +244,10 @@ Run order: main()  ->  join_datasets()  ->  the four analysis functions.
 ```
 
 `deliverable_4.py` and `sync_data.py` do the same, the latter also recording its author.
-`main.py`, `config.py` and `file_explorer.py` were added in this pass for consistency — the
-practice is only worth following if it is universal, and a reader landing in `config.py` should
-immediately learn that it exists to make every other path in the project portable.
+`main.py`, `config.py`, `file_explorer.py` and `deliverable_3.py` were added in later passes
+for consistency — the practice is only worth following if it is universal, and a reader landing
+in `config.py` should immediately learn that it exists to make every other path in the project
+portable. All seven modules in the project now carry one.
 
 ### Code is self-documenting
 
@@ -337,7 +339,7 @@ overstatements of how well the pipeline was doing:
   unmatched, not 14.7%. The SQL cross-check still agreed with pandas, so the *code* was right
   and the *document* was stale — which is exactly the failure mode this document exists to
   prevent, and a reason to re-run before editing rather than edit from memory.
-- Geocoding resolves 177 distinct areas, not 170.
+- Geocoding resolves 190 distinct areas, not 170.
 - The SA2 2026 dictionary has 2,396 entries, not 2,395.
 - The 2019-versus-2026 vintage mismatch was documented as a known gap. It is not one: every one
   of the 177 codes produced is present in the dictionary. A speculative caveat reads exactly
