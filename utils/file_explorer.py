@@ -30,6 +30,11 @@ class AirbnbListing:
     date: datetime.date
     dataframe: pd.DataFrame | None = field(default=None, init=False)
 
+    def __init__(self, path: Path, date: datetime.date) -> None:
+        self.path = path
+        self.date = date
+        self.dataframe = None
+
     def load(self, force: bool = False) -> pd.DataFrame:
         """Load the .csv path as a Pandas Dataframe
 
@@ -37,7 +42,7 @@ class AirbnbListing:
             force (bool, optional): Forces an overwrite of the data, even if it's already loaded. Defaults to False.
 
         Returns:
-            pd.DataFrame: A loaded Pandas Dataframe of the original. csv file
+            pd.DataFrame: A loaded Pandas Dataframe of the original .csv file
         """
         if self.dataframe is None or force:
             self.dataframe = pd.read_csv(self.path, parse_dates=["last_review"])
@@ -46,19 +51,16 @@ class AirbnbListing:
     def filter_christchurch(self) -> None:
         """Loads the dataframe if necessary, then mutates the DataFrame
         in place to filter by Christchurch City"""
-        self.load()
-        self.dataframe = self.dataframe[
-            self.dataframe["neighbourhood_group"] == "Christchurch City"
-        ]
+        df = self.load()
+        df = df[df["neighbourhood_group"] == "Christchurch City"]
 
     def prepare(self) -> None:
         """Loads the dataframe if necessary, then mutates the DataFrame
         in place to add month and year columns based on the publish date of the dataset"""
-        self.load()
-        self.dataframe["published_date"] = self.date
-        self.dataframe["published_month"] = self.date.month
-        self.dataframe["published_year"] = self.date.year
-        self.dataframe["published_date"] = self.date
+        df = self.load()
+        df["published_date"] = self.date
+        df["published_month"] = self.date.month
+        df["published_year"] = self.date.year
 
 
 class AirbnbListings:
@@ -84,9 +86,9 @@ class AirbnbListings:
                     f"Could not extract date from filename: {listing_path.name}"
                 )
 
-            date = datetime.datetime.strptime(date.group(1), "%Y%m%d").date()
+            date = datetime.datetime.strptime(date.group(1), "%Y%m%d").date()  # noqa: DTZ007
 
-            listings.append(AirbnbListing(listing_path, date))
+            listings.append(AirbnbListing(path=listing_path, date=date))
             self._month_map[date.month] = i
 
         self.listings = listings

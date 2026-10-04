@@ -7,6 +7,8 @@ workflow are reproduced at the end via rpy2, which is the one step here with an 
 runtime dependency. See docs/design_principles.md for what this stage does.
 """
 
+from typing import Any
+
 import pandas as pd
 from rich import print
 
@@ -31,7 +33,7 @@ def combine_datasets(airbnb_listings: AirbnbListings) -> pd.DataFrame:
     )
 
 
-def summarise_column(series: pd.Series) -> dict:
+def summarise_column(series: pd.Series) -> dict[str, Any]:
     """Produce summary statistics for a single column.
 
     Numeric columns report min, max, mean, and standard deviation. Non-numeric
@@ -44,7 +46,7 @@ def summarise_column(series: pd.Series) -> dict:
     Returns:
         dict: The column's summary statistics
     """
-    summary = {"missing": series.isna().sum()}
+    summary: dict[str, Any] = {"missing": int(series.isna().sum())}
 
     if pd.api.types.is_datetime64_any_dtype(series):
         summary.update(
@@ -59,10 +61,10 @@ def summarise_column(series: pd.Series) -> dict:
     ):
         summary.update(
             {
-                "min": round(series.min(), 2),
-                "max": round(series.max(), 2),
-                "mean": round(series.mean(), 2),
-                "std": round(series.std(), 2),
+                "min": round(float(series.min()), 2),
+                "max": round(float(series.max()), 2),
+                "mean": round(float(series.mean()), 2),
+                "std": round(float(series.std()), 2),
             }
         )
     else:
