@@ -16,3 +16,9 @@ DATA_DIR.mkdir(exist_ok=True)
 
 OUTPUT_DIR = BASE_DIR / ".output"
 OUTPUT_DIR.mkdir(exist_ok=True)
+
+
+BONDS_FILE = DATA_DIR / "bonds" / "Detailed-Quarterly-Tenancy-Q1-2020-Q3-2026.csv"
+CLEANED_LISTINGS_FILE = OUTPUT_DIR / "cleaned_listings.csv"
+CLEANED_BONDS_FILE = OUTPUT_DIR / "cleaned_bonds.csv"
+COMBINED_LISTINGS_FILE = OUTPUT_DIR / "combined_listings.csv"

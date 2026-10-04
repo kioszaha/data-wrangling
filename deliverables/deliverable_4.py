@@ -8,14 +8,12 @@ Using the combined_listings.csv file from Deliverable 3
 import pandas as pd
 from rich import print
 
-from config import DATA_DIR, OUTPUT_DIR
-
-COMBINED_LISTINGS_FILE = OUTPUT_DIR / "combined_listings.csv"
-BONDS_FILE = (
-    DATA_DIR / "bonds" / "Detailed-Quarterly-Tenancy-Q1-2020-Q3-2026.csv"
+from config import (
+    BONDS_FILE,
+    CLEANED_BONDS_FILE,
+    CLEANED_LISTINGS_FILE,
+    COMBINED_LISTINGS_FILE,
 )
-CLEANED_LISTINGS_FILE = OUTPUT_DIR / "cleaned_listings.csv"
-CLEANED_BONDS_FILE = OUTPUT_DIR / "cleaned_bonds.csv"
 
 # The date range covered by the nine Airbnb snapshots. The bond file is
 # quarterly, so bonds are kept on a quarter-overlap basis against this window.
@@ -25,15 +23,14 @@ SNAPSHOT_END = pd.Timestamp("2026-06-19")
 
 def clean_airbnb_data() -> pd.DataFrame:
     # Make sure the result from deliverable 3 exists
-    INPUT_FILE = COMBINED_LISTINGS_FILE
-    if not INPUT_FILE.exists():
+    if not COMBINED_LISTINGS_FILE.exists():
         raise FileNotFoundError(
-            f"{INPUT_FILE} does not exist. Did you run deliverable_3()?"
+            f"{COMBINED_LISTINGS_FILE} does not exist. Did you run deliverable_3()?"
         )
 
     print("[bold purple]Filtering the Airbnb dataset...")
 
-    df = pd.read_csv(INPUT_FILE)
+    df = pd.read_csv(COMBINED_LISTINGS_FILE)
     initial_rows = len(df)
     print(f"[purple]Initial Airbnb row count: {initial_rows}")
 
@@ -84,13 +81,12 @@ def clean_airbnb_data() -> pd.DataFrame:
 
 def load_bonds_data() -> pd.DataFrame:
     # Make sure the input data for this deliverable exists
-    BONDS_DATA = BONDS_FILE
-    if not BONDS_DATA.exists():
+    if not BONDS_FILE.exists():
         raise FileNotFoundError(
-            f"{BONDS_DATA} does not exist. Did you run sync_data()?"
+            f"{BONDS_FILE} does not exist. Did you run sync_data()?"
         )
 
-    return pd.read_csv(BONDS_DATA, parse_dates=["TimeFrame"])
+    return pd.read_csv(BONDS_FILE, parse_dates=["TimeFrame"])
 
 
 def clean_bonds_data(bonds_df: pd.DataFrame) -> pd.DataFrame:
