@@ -7,11 +7,15 @@ workflow are reproduced at the end via rpy2, which is the one step here with an 
 runtime dependency. See docs/design_principles.md for what this stage does.
 """
 
+from pathlib import Path
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+
 import pandas as pd
 from rich import print
 
 from config import OUTPUT_DIR
-from deliverables.deliverable_4 import COMBINED_LISTINGS_FILE
 from utils.file_explorer import AirbnbListings, file_explorer
 
 
@@ -93,87 +97,59 @@ def summarise_dataset(df: pd.DataFrame, exclude: list) -> pd.DataFrame:
 
     return summary_df
 
+def previous_weeks_plots(Input):
 
-def previous_weeks_plots_R(input_csv: str, output_pdf: str) -> None:
+    df = pd.read_csv(Input)
+    chch = df[df["neighbourhood_group"] == "Christchurch City"]
 
-    try:
-        from rpy2 import robjects
+    OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
 
-    except ValueError as e:
-        if "r_home is None. Try python -m rpy2.situation" == str(e):
-            print(
-                "[red bold]R was not found on your system. Skipping generating plots."
-            )
-            return
-        print(
-            "[red bold]An error occurred importing robjects. Skipping generating plots."
-        )
-        return
+    chch["price"].plot(
+    kind="hist", 
+    bins=range(0, 2010, 10),
+    title="House Prices in Christchurch City",
+    xlabel="Price",
+    ylabel="Number of Houses")
 
-    robjects.globalenv["input_csv"] = str(OUTPUT_DIR / input_csv)
-    robjects.globalenv["output_pdf"] = str(OUTPUT_DIR / output_pdf)
+    chch_plot = OUTPUT_DIR / "chch_price_plot.png"
+    plt.savefig(chch_plot, dpi=300, bbox_inches="tight")
+    plt.close()
 
-    r_code = """
-    
-    library(dplyr)
-    library(readr)
-    library(ggplot2)
+    df["price"].plot(
+        kind="hist", 
+        bins=range(0, 2010, 10),
+        title="House Prices in New Zealand",
+        xlabel="Price",
+        ylabel="Number of Houses")
 
-    pdf(output_pdf)
+    nz_plot = OUTPUT_DIR / "nz_price_plot.png"
+    plt.savefig(nz_plot, dpi=300, bbox_inches="tight")
+    plt.close()
 
-    dataset = read.csv(input_csv)
+    df["last_review"] = pd.to_datetime(df["last_review"], format="%Y-%m-%d", errors="coerce")
+    df["published_date"] = pd.to_datetime(df["published_date"], errors="coerce")
 
-    chch_data_one = dataset %>%
-      filter(neighbourhood_group == "Christchurch City")
+    df["days_since_review"] = (df["published_date"] - df["last_review"]).dt.days
 
-    print(
-      ggplot(chch_data_one, aes(x = price)) +
-        geom_histogram(binwidth = 10, colour = "white") +
-        labs(
-          title = "House Prices in Christchurch City",
-          x = "Price",
-          y = "Number of Houses"
-        ) +
-        lims(x = c(0,2000)) + theme_bw()
-    )
+    df["days_since_review"].plot(
+        kind="hist",
+        bins=range(0, 1025, 25),
+        title="Difference Between Last Review and Publish Date in Days",
+        xlim=(0, 1000),
+        xlabel="Days",
+        ylabel="Count")
 
-    print(
-      ggplot(dataset, aes(x = price)) +
-        geom_histogram(binwidth = 10, colour = "white") +
-        labs(title = "House Prices in New Zealand", x = "Price", y = "Number of Houses") +
-        lims(x = c(0,2000)) + theme_bw()
-    )
+    review_plot = OUTPUT_DIR / "days_since_review_plot.png"
+    plt.savefig(review_plot, dpi=300, bbox_inches="tight")
+    plt.close()
 
-    dataset$last_review <- as.Date(dataset$last_review, format = "%Y-%m-%d")
-    dataset$days_since_june19 <- as.Date(paste(dataset$published_year, dataset$published_month, "01", sep="-")) - dataset$last_review
-    dataset$days_since_june19 <- as.numeric(dataset$days_since_june19)
+    threshold = df['number_of_reviews'].quantile(0.9)
 
-    print(
-      ggplot(dataset, aes(x = days_since_june19)) +
-        geom_histogram(colour = "white", binwidth = 25) +
-        labs(
-          title = "Difference Between Last Review and Publish Date in Days",
-          x = "Days", y = "Count"
-        ) +
-        lims(x = c(0, 1000)) + theme_bw()
-    )
+    top_10 = df[df['number_of_reviews'] >= threshold]
 
-    threshold <- quantile(dataset$number_of_reviews, 0.9, na.rm = TRUE)
+    chch_top_10_count = len(top_10[top_10['neighbourhood_group'] == "Christchurch City"])
+    print("Top 10 Percent of Properties in Christchurch by Number of Reviews: ", chch_top_10_count)
 
-    top_10 <- dataset %>%
-      filter(number_of_reviews >= threshold)
-
-    count_top10_chch <- top_10 %>%
-      filter(neighbourhood_group == "Christchurch City") %>%
-      nrow()
-
-    plot.new()
-    text(0.5, 0.6, "Number of Top 10% Properties in Christchurch New Zealand", cex = 1.1)
-    text(0.5, 0.4, count_top10_chch, cex = 2.5)
-
-    dev.off()
-    """
-    robjects.r(r_code)
 
 
 def main() -> None:
@@ -203,7 +179,6 @@ def main() -> None:
             "license",
             "published_month",
             "published_year",
-            "published_date",
             "longitude",
             "latitude",
         ],
@@ -213,11 +188,12 @@ def main() -> None:
     print(f"➡️ [blue] Saved summary to [bold]{summary_output_path}[/bold][/blue]")
 
     # Task 7: Store the concatenated dataset in a new file
-    combined_dataset.to_csv(COMBINED_LISTINGS_FILE, index=False)
+    combined_dataset_output_path = OUTPUT_DIR / "combined_listings.csv"
+    combined_dataset.to_csv(combined_dataset_output_path, index=False)
     print(
-        f"➡️ [blue] Saved combined dataset to [bold]{COMBINED_LISTINGS_FILE}[/bold][/blue]"
+        f"➡️ [blue] Saved combined dataset to [bold]{combined_dataset_output_path}[/bold][/blue]"
     )
 
     # Task 8: Reproduce workflow and plots from last weeks no code software
 
-    previous_weeks_plots_R("combined_listings.csv", "test_combined_listings_graphs.pdf")
+    previous_weeks_plots(combined_dataset_output_path)
